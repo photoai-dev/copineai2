@@ -27,6 +27,12 @@ const nextConfig: NextConfig = {
       fallback: [
         { source: "/", destination: `${LEGACY_APP_ORIGIN}/` },
         { source: "/:path*/", destination: `${LEGACY_APP_ORIGIN}/:path*/` },
+        // Fichiers (JS, CSS, images, manifest, service worker...) : jamais de slash final,
+        // et trailingSlash:true les exempte déjà de toute redirection automatique (doc
+        // Next.js : "Static file URLs, such as files with extensions" sont une exception) —
+        // sans cette règle ils ne correspondaient à aucune des deux ci-dessus et tombaient
+        // sur le 404 de Next au lieu d'être relayés vers love20 (page affichée sans styles).
+        { source: "/:path*", destination: `${LEGACY_APP_ORIGIN}/:path*` },
       ],
     };
   },
