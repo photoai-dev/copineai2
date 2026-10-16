@@ -41,11 +41,12 @@ const nextConfig: NextConfig = {
           source: `/${f}`,
           destination: `${LEGACY_APP_ORIGIN}/${f}`,
         })),
-        // Le blog public (/blog/) relaie la vraie version complète de l'app (/app/blog/),
-        // pas la version allégée — demande explicite, pour ne pas avoir un blog "light"
-        // moins engageant côté SEO/trafic.
-        { source: "/blog/", destination: `${LEGACY_APP_ORIGIN}/app/blog/` },
-        { source: "/blog/:path*/", destination: `${LEGACY_APP_ORIGIN}/app/blog/:path*/` },
+        // Le blog public (/blog/) relaie la version déjà en prod sur copineai.com
+        // aujourd'hui (projet love20, /blog/ "light") : elle a déjà un vrai menu en
+        // haut et est déjà indexée par Google (confirmé par capture d'écran) — on ne
+        // touche pas à ce qui marche déjà.
+        { source: "/blog/", destination: `${LEGACY_APP_ORIGIN}/blog/` },
+        { source: "/blog/:path*/", destination: `${LEGACY_APP_ORIGIN}/blog/:path*/` },
         ...LEGACY_ROOT_PAGES.flatMap((p) => [
           { source: `/${p}/`, destination: `${LEGACY_APP_ORIGIN}/${p}/` },
           { source: `/${p}/:path*/`, destination: `${LEGACY_APP_ORIGIN}/${p}/:path*/` },
