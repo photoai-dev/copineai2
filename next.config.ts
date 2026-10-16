@@ -41,13 +41,13 @@ const nextConfig: NextConfig = {
           source: `/${f}`,
           destination: `${LEGACY_APP_ORIGIN}/${f}`,
         })),
-        // Le blog public (/blog/) relaie la vraie version complète de l'app
-        // (/app/blog/) : sidebar + menu du haut, celle que Seb veut montrer aux
-        // visiteurs. love20 exempte déjà /app/blog/ de son noindex global sur
-        // /app/* (vercel.json + robots.txt), donc elle reste indexable malgré
-        // l'URL /app/.
-        { source: "/blog/", destination: `${LEGACY_APP_ORIGIN}/app/blog/` },
-        { source: "/blog/:path*/", destination: `${LEGACY_APP_ORIGIN}/app/blog/:path*/` },
+        // Le blog public (/blog/) relaie le vrai dossier /blog/ de love20 : 123
+        // articles + 12 pages de catégorie en HTML STATIQUE pré-généré (pas la SPA
+        // /app/blog/ en JS). Vrais <a href> partout, JSON-LD, canonical — c'est ce
+        // contenu précis que Google a déjà indexé. Ne pas revenir sur ce choix sans
+        // preuve contraire : /app/blog/ est la version JS, moins bonne pour le SEO.
+        { source: "/blog/", destination: `${LEGACY_APP_ORIGIN}/blog/` },
+        { source: "/blog/:path*/", destination: `${LEGACY_APP_ORIGIN}/blog/:path*/` },
         // Pages de vente (/vente/alma/ etc.) : même logique que le blog — on relaie
         // la vraie page vers /app/vente/..., que love20 exempte désormais de son
         // noindex global sur /app/* (vercel.json + robots.txt), pour qu'elle reste
