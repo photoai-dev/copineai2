@@ -15,7 +15,16 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   async rewrites() {
     return {
-      beforeFiles: [],
+      // Sans ça, ces 3 fichiers legacy à la racine (un seul segment, comme /sophie) sont
+      // avalés par notre propre route dynamique /[model] (notFound(), puisqu'ils ne sont pas
+      // un id de modèle connu) AVANT d'atteindre le relais "fallback" vers love20 — c'était la
+      // cause du CSS manquant (page affichée sans aucun style). beforeFiles est évalué avant
+      // les routes dynamiques (doc Next.js : ordre de routage, étape 4 vs étape 7).
+      beforeFiles: [
+        { source: "/app.css", destination: `${LEGACY_APP_ORIGIN}/app.css` },
+        { source: "/manifest.webmanifest", destination: `${LEGACY_APP_ORIGIN}/manifest.webmanifest` },
+        { source: "/sw.js", destination: `${LEGACY_APP_ORIGIN}/sw.js` },
+      ],
       afterFiles: [],
       // "fallback" : uniquement si aucune route Next.js (fichier, page statique ou dynamique)
       // ne correspond. /app/*, /_gestion/*, les anciennes pages non encore migrées (/pass,
