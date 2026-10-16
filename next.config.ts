@@ -18,7 +18,7 @@ const LEGACY_ROOT_FILES = ["app.css", "manifest.webmanifest", "sw.js"];
 // même affichée sur l'URL publique /blog/.
 const LEGACY_ROOT_PAGES = [
   "faq", "guides", "lexique", "charte", "cgu",
-  "confidentialite", "aide", "quiz", "alix", "compagnons",
+  "confidentialite", "aide", "quiz", "alix", "compagnons", "pass",
 ];
 
 const nextConfig: NextConfig = {
