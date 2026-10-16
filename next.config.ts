@@ -11,6 +11,10 @@ const LEGACY_APP_ORIGIN = "https://love20-nine.vercel.app";
 // un id de modèle connu — cf doc Next.js, ordre de routage : dynamique = étape 7, avant
 // "fallback" = étape 8). On les relaie explicitement en amont, via beforeFiles (étape 4).
 const LEGACY_ROOT_FILES = ["app.css", "manifest.webmanifest", "sw.js"];
+// Les pages statiques /blog/ de love20 (voir plus bas) chargent leur CSS via des
+// chemins absolus /assets/*.css — sans ce relais, ces pages s'affichaient sans
+// aucun style (menu invisible, pas cassé mais non stylé).
+const LEGACY_ASSET_PREFIXES = ["assets", "img", "icons"];
 // "blog" n'est PAS ici : il a son propre jeu de règles ci-dessous, pointant vers la version
 // complète /app/blog/ (menus app), pas la version allégée /blog/ — demande explicite : le
 // blog public doit être la vraie version, pas une version light. love20 exempte /app/blog/
@@ -40,6 +44,10 @@ const nextConfig: NextConfig = {
         ...LEGACY_ROOT_FILES.map((f) => ({
           source: `/${f}`,
           destination: `${LEGACY_APP_ORIGIN}/${f}`,
+        })),
+        ...LEGACY_ASSET_PREFIXES.map((p) => ({
+          source: `/${p}/:path*`,
+          destination: `${LEGACY_APP_ORIGIN}/${p}/:path*`,
         })),
         // Le blog public (/blog/) relaie le vrai dossier /blog/ de love20 : 123
         // articles + 12 pages de catégorie en HTML STATIQUE pré-généré (pas la SPA
