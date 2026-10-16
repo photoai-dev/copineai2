@@ -17,9 +17,10 @@ export const metadata: Metadata = {
 // C'est ce qui fait circuler le maillage interne / "jus de lien" pour le SEO.
 const NAV = [
   { href: "/", label: "Modèles" },
+  { href: "/feed/", label: "Feed" },
   { href: "/blog/", label: "Blog" },
   { href: "/guides/", label: "Guides" },
-  { href: "/pass/", label: "Forfaits" },
+  { href: "/tarifs/", label: "Tarifs" },
   { href: "/faq/", label: "FAQ" },
 ];
 
