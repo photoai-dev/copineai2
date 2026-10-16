@@ -48,6 +48,11 @@ const nextConfig: NextConfig = {
         // l'URL /app/.
         { source: "/blog/", destination: `${LEGACY_APP_ORIGIN}/app/blog/` },
         { source: "/blog/:path*/", destination: `${LEGACY_APP_ORIGIN}/app/blog/:path*/` },
+        // Pages de vente (/vente/alma/ etc.) : même logique que le blog — on relaie
+        // la vraie page vers /app/vente/..., que love20 exempte désormais de son
+        // noindex global sur /app/* (vercel.json + robots.txt), pour qu'elle reste
+        // indexable sur l'URL publique propre /vente/....
+        { source: "/vente/:path*/", destination: `${LEGACY_APP_ORIGIN}/app/vente/:path*/` },
         ...LEGACY_ROOT_PAGES.flatMap((p) => [
           { source: `/${p}/`, destination: `${LEGACY_APP_ORIGIN}/${p}/` },
           { source: `/${p}/:path*/`, destination: `${LEGACY_APP_ORIGIN}/${p}/:path*/` },
