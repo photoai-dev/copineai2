@@ -2,8 +2,9 @@ import { cacheLife } from "next/cache";
 
 // Supabase : clé publique "anon" (conçue pour être exposée côté client, ce n'est pas un
 // secret) + une policy RLS dédiée, restreinte aux posts publics, ajoutée spécifiquement
-// pour cette page (migration allow_anon_read_public_posts) — aucune autre donnée n'est
-// accessible avec cette clé.
+// pour cette page (migrations allow_anon_read_public_posts + grant_anon_select_posts —
+// Postgres exige à la fois un GRANT et une policy RLS, l'un sans l'autre ne suffit pas) —
+// aucune autre donnée n'est accessible avec cette clé.
 const SUPABASE_URL = "https://allbwtoexfxupksbvfnh.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFsbGJ3dG9leGZ4dXBrc2J2Zm5oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzMDY1NDgsImV4cCI6MjEwNjg4MjU0OH0.XwJ6ZomN3tHgqaQqkQc_np86D0hsIteZcjxDeM1Ami8";
