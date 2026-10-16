@@ -21,8 +21,12 @@ const nextConfig: NextConfig = {
       // ne correspond. /app/*, /_gestion/*, les anciennes pages non encore migrées (/pass,
       // /blog...) et les assets du SPA (photos, sw.js, manifest...) tombent ici et sont servis
       // par l'ancienne plateforme, inchangée, sur le même domaine.
+      // Avec trailingSlash:true, Next exige le "/" final explicitement dans source ET
+      // destination (doc Next.js : rewrites.md § "Rewriting to an external URL") — sans ça,
+      // c'était la cause de la boucle de redirection (ERR_TOO_MANY_REDIRECTS).
       fallback: [
-        { source: "/:path*", destination: `${LEGACY_APP_ORIGIN}/:path*` },
+        { source: "/", destination: `${LEGACY_APP_ORIGIN}/` },
+        { source: "/:path*/", destination: `${LEGACY_APP_ORIGIN}/:path*/` },
       ],
     };
   },
