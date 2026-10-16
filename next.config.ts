@@ -5,6 +5,17 @@ import type { NextConfig } from "next";
 // (le domaine passe à ce projet-ci) — seulement cet alias fixe du projet.
 const LEGACY_APP_ORIGIN = "https://love20-nine.vercel.app";
 
+// Fichiers ET pages legacy à un seul segment (/blog, /app.css, /sw.js...) : un seul segment
+// de chemin veut dire que notre route dynamique /[model] les avale AVANT le relais "fallback"
+// vers love20 (elle matche n'importe quel segment unique, renvoie notFound() si ce n'est pas
+// un id de modèle connu — cf doc Next.js, ordre de routage : dynamique = étape 7, avant
+// "fallback" = étape 8). On les relaie explicitement en amont, via beforeFiles (étape 4).
+const LEGACY_ROOT_FILES = ["app.css", "manifest.webmanifest", "sw.js"];
+const LEGACY_ROOT_PAGES = [
+  "blog", "faq", "guides", "lexique", "charte", "cgu",
+  "confidentialite", "aide", "quiz", "alix", "compagnons",
+];
+
 const nextConfig: NextConfig = {
   // love20 force un "/" final sur toutes ses routes (vercel.json: trailingSlash=true) et
   // redirige (308) sinon. Sans ce même réglage ici, une requête sans slash final transite
@@ -21,9 +32,14 @@ const nextConfig: NextConfig = {
       // cause du CSS manquant (page affichée sans aucun style). beforeFiles est évalué avant
       // les routes dynamiques (doc Next.js : ordre de routage, étape 4 vs étape 7).
       beforeFiles: [
-        { source: "/app.css", destination: `${LEGACY_APP_ORIGIN}/app.css` },
-        { source: "/manifest.webmanifest", destination: `${LEGACY_APP_ORIGIN}/manifest.webmanifest` },
-        { source: "/sw.js", destination: `${LEGACY_APP_ORIGIN}/sw.js` },
+        ...LEGACY_ROOT_FILES.map((f) => ({
+          source: `/${f}`,
+          destination: `${LEGACY_APP_ORIGIN}/${f}`,
+        })),
+        ...LEGACY_ROOT_PAGES.flatMap((p) => [
+          { source: `/${p}/`, destination: `${LEGACY_APP_ORIGIN}/${p}/` },
+          { source: `/${p}/:path*/`, destination: `${LEGACY_APP_ORIGIN}/${p}/:path*/` },
+        ]),
       ],
       afterFiles: [],
       // "fallback" : uniquement si aucune route Next.js (fichier, page statique ou dynamique)
