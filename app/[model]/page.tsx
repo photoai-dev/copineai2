@@ -30,7 +30,7 @@ export async function generateMetadata({
 
   const title = `${m.name}, ${m.age} ans — ${m.job} à ${m.city} | ${SITE_NAME}`;
   const description = m.tagline;
-  const url = `${SITE_URL}/${m.id}`;
+  const url = `${SITE_URL}/${m.id}/`;
   const image = modelCoverPhoto(m);
 
   return {
@@ -122,7 +122,7 @@ export default async function ModelPage({
         ) : null}
 
         <a
-          href={`/app/${m.id}/`}
+          href={`/app/vente/${m.id}/`}
           className="mt-8 inline-block rounded-full px-6 py-3 font-bold text-white"
           style={{ background: "var(--ac)" }}
         >

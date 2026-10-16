@@ -6,6 +6,13 @@ import type { NextConfig } from "next";
 const LEGACY_APP_ORIGIN = "https://love20-nine.vercel.app";
 
 const nextConfig: NextConfig = {
+  // love20 force un "/" final sur toutes ses routes (vercel.json: trailingSlash=true) et
+  // redirige (308) sinon. Sans ce même réglage ici, une requête sans slash final transite
+  // par le fallback vers love20, qui répond par un 308 avec un Location relatif — le
+  // navigateur le réinterprète sur CE domaine (copineai2), pas sur love20, d'où une boucle
+  // de redirections infinie. En normalisant nous-mêmes le slash ici, en amont, cette requête
+  // n'atteint jamais love20 sous une forme qui déclenche sa propre redirection.
+  trailingSlash: true,
   async rewrites() {
     return {
       beforeFiles: [],
