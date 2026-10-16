@@ -11,8 +11,13 @@ const LEGACY_APP_ORIGIN = "https://love20-nine.vercel.app";
 // un id de modèle connu — cf doc Next.js, ordre de routage : dynamique = étape 7, avant
 // "fallback" = étape 8). On les relaie explicitement en amont, via beforeFiles (étape 4).
 const LEGACY_ROOT_FILES = ["app.css", "manifest.webmanifest", "sw.js"];
+// "blog" n'est PAS ici : il a son propre jeu de règles ci-dessous, pointant vers la version
+// complète /app/blog/ (menus app), pas la version allégée /blog/ — demande explicite : le
+// blog public doit être la vraie version, pas une version light. love20 exempte /app/blog/
+// de son noindex global sur /app/* (vercel.json + robots.txt), donc elle reste indexable
+// même affichée sur l'URL publique /blog/.
 const LEGACY_ROOT_PAGES = [
-  "blog", "faq", "guides", "lexique", "charte", "cgu",
+  "faq", "guides", "lexique", "charte", "cgu",
   "confidentialite", "aide", "quiz", "alix", "compagnons",
 ];
 
@@ -36,6 +41,11 @@ const nextConfig: NextConfig = {
           source: `/${f}`,
           destination: `${LEGACY_APP_ORIGIN}/${f}`,
         })),
+        // Le blog public (/blog/) relaie la vraie version complète de l'app (/app/blog/),
+        // pas la version allégée — demande explicite, pour ne pas avoir un blog "light"
+        // moins engageant côté SEO/trafic.
+        { source: "/blog/", destination: `${LEGACY_APP_ORIGIN}/app/blog/` },
+        { source: "/blog/:path*/", destination: `${LEGACY_APP_ORIGIN}/app/blog/:path*/` },
         ...LEGACY_ROOT_PAGES.flatMap((p) => [
           { source: `/${p}/`, destination: `${LEGACY_APP_ORIGIN}/${p}/` },
           { source: `/${p}/:path*/`, destination: `${LEGACY_APP_ORIGIN}/${p}/:path*/` },
