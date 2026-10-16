@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
 import { SITE_NAME } from "@/lib/site";
+import { SiteHeader, SiteSidebar } from "@/components/SiteChrome";
 
 // Pas de next/font/google ici : le site d'origine charge Bricolage Grotesque / Figtree en
 // local (voir --display dans app.css de love20), et surtout ça évite de dépendre d'un accès
@@ -12,40 +13,13 @@ export const metadata: Metadata = {
   description: "Des compagnes IA avec une vraie personnalité.",
 };
 
-// Vrais <a href> rendus dans le HTML initial de CHAQUE page (accueil + fiches modèles) — pas
-// un menu injecté en JS après coup comme sur love20 (boutons data-act, invisibles à Google).
-// C'est ce qui fait circuler le maillage interne / "jus de lien" pour le SEO.
-const NAV = [
-  { href: "/", label: "Modèles" },
-  { href: "/feed/", label: "Feed" },
-  { href: "/blog/", label: "Blog" },
-  { href: "/guides/", label: "Guides" },
-  { href: "/tarifs/", label: "Tarifs" },
-  { href: "/faq/", label: "FAQ" },
-];
-
-function Header() {
-  return (
-    <header className="border-b border-neutral-200">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
-        <Link href="/" className="text-xl font-extrabold">
-          {SITE_NAME}
-        </Link>
-        <nav aria-label="Navigation principale">
-          <ul className="flex gap-6 text-sm font-medium">
-            {NAV.map((n) => (
-              <li key={n.href}>
-                <Link href={n.href} className="hover:text-[var(--red,#e4002b)]">
-                  {n.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </div>
-    </header>
-  );
-}
+// Header (menu du haut) + sidebar (menu de gauche) : même design, mêmes classes et
+// couleurs que l'app (love20), repris dans components/SiteChrome.tsx — pour que
+// chaque page de ce site (accueil, fiches, feed, tarifs, blog...) ait le même menu
+// que le reste de la plateforme, pas un design différent par page. Ce sont de vrais
+// <a href> rendus dans le HTML initial — pas un menu injecté en JS après coup comme
+// sur love20 (boutons data-act, invisibles à Google) — ce qui fait circuler le
+// maillage interne / "jus de lien" pour le SEO.
 
 function Footer() {
   return (
@@ -75,7 +49,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className="h-full antialiased">
       <body className="min-h-full flex flex-col font-sans">
-        <Header />
+        <SiteSidebar />
+        <SiteHeader />
         {children}
         <Footer />
       </body>
