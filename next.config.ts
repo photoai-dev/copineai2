@@ -26,7 +26,7 @@ const LEGACY_ROOT_PAGES = [
   // Ajoutés : liens présents dans le menu de love20 (index.html) mais absents de cette
   // liste jusqu'ici, donc avalés en 404 par notre route dynamique /[model] (même cause
   // que le blog à l'origine — cf commentaire plus haut) au lieu d'être relayés.
-  "drague", "timeline", "webmaster", "pourquoi-une-petite-amie-ia",
+  "drague", "timeline", "webmaster", "pourquoi-une-petite-amie-ia", "live", "compte",
   // Critique avant la bascule du domaine (#107) : "/_gestion/" (entrée de l'admin, un seul
   // segment) tombait dans le même piège — avalée en 404 par /[model] au lieu d'atteindre
   // love20. Les sous-pages (/_gestion/vivix/ etc., 2+ segments) ne matchent pas /[model] et
