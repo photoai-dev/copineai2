@@ -96,6 +96,20 @@ const nextConfig: NextConfig = {
       ],
     };
   },
+  // Sans ça, les pages relayées depuis love20 (fallback ci-dessus : "/", /vente/*, /live/
+  // avant correction, etc.) restaient figées en cache côté edge Vercel — un contenu mis à
+  // jour sur love20 (ou en base, via les pages qui en dépendent) n'était jamais revu tant
+  // qu'aucun nouveau déploiement de CE projet ne force une entrée de cache différente.
+  // Diagnostiqué le 19/10/2026 : "/app/live/" corrigé sur love20 restait absent de "/" servi
+  // via copineai2 des heures après, confirmé par un fetch direct sur love20 (à jour) vs un
+  // fetch via copineai2 (figé). Contrepartie acceptée : nos propres pages statiques (/feed/,
+  // /[model]/...) perdent aussi la mise en cache HTTP en bénéficiaient — correct avant perf,
+  // à revoir plus finement une fois la bascule de domaine (#107) stabilisée.
+  async headers() {
+    return [
+      { source: "/:path*", headers: [{ key: "Cache-Control", value: "no-store" }] },
+    ];
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "allbwtoexfxupksbvfnh.supabase.co", pathname: "/storage/v1/object/public/**" },
