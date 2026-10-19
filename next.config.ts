@@ -23,6 +23,10 @@ const LEGACY_ASSET_PREFIXES = ["assets", "img", "icons"];
 const LEGACY_ROOT_PAGES = [
   "faq", "guides", "lexique", "charte", "cgu",
   "confidentialite", "aide", "quiz", "alix", "compagnons", "pass",
+  // Ajoutés : liens présents dans le menu de love20 (index.html) mais absents de cette
+  // liste jusqu'ici, donc avalés en 404 par notre route dynamique /[model] (même cause
+  // que le blog à l'origine — cf commentaire plus haut) au lieu d'être relayés.
+  "drague", "timeline", "webmaster", "pourquoi-une-petite-amie-ia",
 ];
 
 const nextConfig: NextConfig = {
