@@ -26,6 +26,19 @@ export function feedMediaUrl(path: string): string {
   return `${MEDIA_BASE}${path}`;
 }
 
+// Feed privé (membres connectés, compte actif) : pub + priv, via la fonction Postgres
+// member_feed (SECURITY DEFINER) — la table posts n'est pas lisible directement par un
+// membre standard (RLS réservée au staff). Jamais de contenu "ppv" ici (déblocage par
+// crédit, Tâche #90, pas encore construit).
+export async function getMemberFeed(
+  supabase: import("@supabase/supabase-js").SupabaseClient,
+  limit = 60
+): Promise<FeedPost[]> {
+  const { data, error } = await supabase.rpc("member_feed", { p_limit: limit });
+  if (error || !data) return [];
+  return data as FeedPost[];
+}
+
 export async function getPublicFeed(limit = 60): Promise<FeedPost[]> {
   "use cache";
   cacheLife("hours");
