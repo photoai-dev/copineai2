@@ -15,6 +15,22 @@ const LEGACY_ROOT_FILES = ["app.css", "manifest.webmanifest", "sw.js"];
 // chemins absolus /assets/*.css — sans ce relais, ces pages s'affichaient sans
 // aucun style (menu invisible, pas cassé mais non stylé).
 const LEGACY_ASSET_PREFIXES = ["assets", "img", "icons"];
+// Fiches modèle (#108, 20/10/2026) : app/[model]/page.tsx est une coquille pensée UNIQUEMENT
+// pour l'indexation (JSON-LD, meta — cf commentaire dans ce fichier) ; elle n'a ni le CSS de
+// l'app, ni le feed, ni la popin d'inscription, ni le chat. Comme c'est une route Next
+// *dynamique*, elle gagne toujours contre le "fallback" vers love20 (dynamique = étape 7,
+// avant fallback = étape 8) : depuis la bascule du domaine, un visiteur arrivant directement
+// sur /capucine/ (lien externe, barre d'adresse, résultat Google) tombait sur la coquille au
+// lieu de la vraie fiche — signalé en prod (users réels, pas qu'un modèle, le bug disparaît
+// une fois qu'on navigue ailleurs dans le SPA). On relaie donc ces routes vers love20 pour
+// tout le monde SAUF les robots d'indexation (condition "missing" ci-dessous), qui continuent
+// de voir la coquille Next avec son JSON-LD — c'est son seul rôle désormais.
+const LEGACY_MODEL_IDS = [
+  "sophie", "jessica", "jenny", "beatrice", "aya", "capucine", "anna", "nina", "liloo",
+  "natasha", "castel", "lee", "alma", "olivia", "annabelle", "cindy", "ayo", "nabilla",
+  "charlotte", "alix",
+];
+const BOT_UA = "(?:[Bb]ot|[Ss]pider|[Cc]rawl|facebookexternalhit|whatsapp|[Tt]elegram|[Pp]review)";
 // "blog" n'est PAS ici : il a son propre jeu de règles ci-dessous, pointant vers la version
 // complète /app/blog/ (menus app), pas la version allégée /blog/ — demande explicite : le
 // blog public doit être la vraie version, pas une version light. love20 exempte /app/blog/
@@ -58,6 +74,14 @@ const nextConfig: NextConfig = {
         ...LEGACY_ASSET_PREFIXES.map((p) => ({
           source: `/${p}/:path*`,
           destination: `${LEGACY_APP_ORIGIN}/${p}/:path*`,
+        })),
+        // Fiches modèle (#108) : vraie fiche love20 pour tout le monde, sauf les robots
+        // d'indexation qui gardent la coquille Next (JSON-LD) — cf commentaire sur
+        // LEGACY_MODEL_IDS plus haut.
+        ...LEGACY_MODEL_IDS.map((id) => ({
+          source: `/${id}/`,
+          destination: `${LEGACY_APP_ORIGIN}/${id}/`,
+          missing: [{ type: "header" as const, key: "user-agent", value: BOT_UA }],
         })),
         // Le blog public (/blog/) relaie le vrai dossier /blog/ de love20 : 123
         // articles + 12 pages de catégorie en HTML STATIQUE pré-généré (pas la SPA
