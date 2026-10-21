@@ -13,9 +13,9 @@ export async function GET(req: Request) {
   if (action === "get") body.id = id;
   if (action === "create") {
     body.input = {
-      image: CHARACTER_IMAGE,
+      character_image: CHARACTER_IMAGE,
       video: REFERENCE_VIDEO,
-      resolution: "480p",
+      resolution: "480",
     };
   }
 
