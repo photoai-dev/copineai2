@@ -22,13 +22,24 @@ const LEGACY_ROOT_FILES = ["app.css", "manifest.webmanifest"];
 // chemins absolus /assets/*.css — sans ce relais, ces pages s'affichaient sans
 // aucun style (menu invisible, pas cassé mais non stylé).
 const LEGACY_ASSET_PREFIXES = ["assets", "img", "icons"];
-// Fiches modèle (#108, 20/10/2026 → #113, 21/10/2026) : app/[model]/page.tsx a longtemps été
-// une coquille pensée UNIQUEMENT pour l'indexation, donc relayée vers love20 pour les humains
-// (liste LEGACY_MODEL_IDS + exemption bots ci-dessous). Elle a depuis gagné un vrai contenu
-// (photo, bio, traits, aperçu feed réel, CTA, JSON-LD — cf app/[model]/page.tsx), donc ce
-// relais n'a plus de raison d'être : on le retire, tout le monde voit désormais la vraie
-// fiche Next.js. Les routes dynamiques gagnent déjà contre le fallback (étape 7 avant 8),
-// donc rien à ajouter ici pour que /sophie/ etc. pointent sur notre propre page.
+// Fiches modèle (#108, 20/10/2026 → #113, 21/10/2026 → #121, 21/10/2026) : le relais vers
+// love20 avait été retiré en #113 en pensant que app/[model]/page.tsx (bio, traits, aperçu
+// feed, CTA, JSON-LD) suffisait. FAUX : love20 affiche un vrai profil membre (bannière, avatar,
+// stats publications/vidéos/souvenirs, boutons "S'abonner"/"Message", humeur, forfait/crédits,
+// grille de miniatures) — notre page est une coquille à côté (cf captures utilisateur, #121).
+// Même logique que /feed/ (#117) et /app/* (#118) : on relaie vers la vraie version plutôt que
+// de maintenir une version "light" en parallèle. Limite : love20 a son propre jeu de données
+// figé (gelé, non redéployé) et ne connaît PAS "libertine" (Kim & Anaïs, modèle ajouté le
+// 20/10/2026 après ce gel — cf lib/models.ts) : la relayer donnerait la même page générique
+// "Cette présentation arrive bientôt" que /app/vente/libertine/. Donc la liste ci-dessous est
+// explicite (tous les ids de MODEL_ORDER sauf "libertine"), pas "tout sauf la liste noire" —
+// pour que tout nouveau modèle futur, absent de love20 par construction, continue de tomber sur
+// notre propre app/[model]/page.tsx (route dynamique, étape 7) plutôt que sur un relais cassé.
+const LEGACY_MODEL_IDS = [
+  "sophie", "jessica", "jenny", "anna", "nina", "liloo", "natasha", "lee",
+  "alma", "olivia", "annabelle", "cindy", "ayo", "nabilla", "charlotte",
+  "beatrice", "aya", "capucine",
+];
 // "blog" n'est PAS ici : il a son propre jeu de règles ci-dessous, pointant vers la version
 // complète /app/blog/ (menus app), pas la version allégée /blog/ — demande explicite : le
 // blog public doit être la vraie version, pas une version light. love20 exempte /app/blog/
@@ -95,6 +106,12 @@ const nextConfig: NextConfig = {
         // Le client doit voir CE feed-là dès la première visite sur l'URL publique
         // /feed/, pas une maquette différente. Relais direct vers /app/feed/.
         { source: "/feed/", destination: `${LEGACY_APP_ORIGIN}/app/feed/` },
+        // Fiches modèle connues de love20 (#121, 21/10/2026) : voir le commentaire sur
+        // LEGACY_MODEL_IDS plus haut. "libertine" est volontairement absent de cette liste.
+        ...LEGACY_MODEL_IDS.map((id) => ({
+          source: `/${id}/`,
+          destination: `${LEGACY_APP_ORIGIN}/${id}/`,
+        })),
         // TOUT /app/* (#118, 21/10/2026) : nos propres pages app/app/{feed,me,mine,
         // generate,live,compte}/page.tsx (tâche #104) étaient des réimplémentations
         // partielles — sans les filtres, compteurs, cartes "Pass requis" de love20 —
