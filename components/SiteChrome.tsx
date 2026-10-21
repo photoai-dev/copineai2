@@ -13,6 +13,8 @@ const ICONS: Record<string, string> = {
   feed: '<rect x="4" y="3.5" width="16" height="7.5" rx="1.8"/><rect x="4" y="13" width="16" height="7.5" rx="1.8"/>',
   heart:
     '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z"/>',
+  chat: '<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/>',
+  film: '<rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/>',
   bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
   sparkle: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>',
   shield: '<path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z"/>',
@@ -49,7 +51,7 @@ const SIDE: { id: string; label: string; icon: string; href: string; badge?: str
   { id: "discover", label: "Explorer", icon: "compass", href: "/" },
   { id: "live", label: "Live Streaming", icon: "flame", href: "/live/" },
   { id: "feed", label: "Feed", icon: "feed", href: "/feed/" },
-  { id: "chats", label: "Messagerie", icon: "heart", href: "/app/me/" },
+  { id: "chats", label: "Messagerie", icon: "chat", href: "/app/me/" },
   { id: "mine", label: "Mes copines", icon: "heart", href: "/app/mine/" },
   { id: "coach", label: "Mon coach", icon: "bolt", href: "/app/coach/" },
   { id: "quiz", label: "Trouver ma copine", icon: "sparkle", href: "/quiz/" },
@@ -69,7 +71,7 @@ const SIDE: { id: string; label: string; icon: string; href: string; badge?: str
 const TOPNAV = [
   { href: "/", label: "Découvrir", icon: "grid" },
   { href: "/live/", label: "Live Streaming", icon: "flame" },
-  { href: "/", label: "Modèles", icon: "heart" },
+  { href: "/", label: "Mes modèles", icon: "heart" },
   { href: "/tarifs/", label: "Pass", icon: "star" },
   { href: "/blog/", label: "Blog", icon: "book" },
   { href: "/app/studio/", label: "Studio", icon: "sparkle" },
@@ -126,12 +128,21 @@ export function SiteSidebar() {
             {s.badge ? <em>{s.badge}</em> : null}
           </a>
         ))}
-        <div className="side-sep" role="presentation" />
         <a href="/pourquoi-une-petite-amie-ia/" aria-label="Pourquoi une petite amie IA ?">
           <Icon name="heart" />
           <span>Pourquoi une copine IA ?</span>
           <em>Lire</em>
         </a>
+        <div className="side-sep" role="presentation" />
+        <span
+          className="side-soon"
+          aria-label="Scénarios (bientôt)"
+          title="Une routine sur mesure : messages, photos et vocaux spontanés dans ta journée. En préparation."
+        >
+          <Icon name="film" />
+          <span>Scénarios</span>
+          <em>Bientôt</em>
+        </span>
       </nav>
       <div className="side-bot">
         <a href="/tarifs/" className="side-up">
