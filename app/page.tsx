@@ -394,7 +394,7 @@ export default function HomePage() {
           </article>
           {models.map((m) => (
             <article key={m.id} className="sl-tzc" style={{ background: m.theme?.ac }}>
-              <Image src={modelCoverPhoto(m)} alt="" width={320} height={320} unoptimized />
+              <Image src={modelAvatar(m)} alt="" width={320} height={320} unoptimized />
               <div>
                 <h3>{m.name}</h3>
                 <p>{m.tagline}</p>
