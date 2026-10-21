@@ -106,11 +106,15 @@ const nextConfig: NextConfig = {
         // Le client doit voir CE feed-là dès la première visite sur l'URL publique
         // /feed/, pas une maquette différente. Relais direct vers /app/feed/.
         { source: "/feed/", destination: `${LEGACY_APP_ORIGIN}/app/feed/` },
-        // Fiches modèle connues de love20 (#121, 21/10/2026) : voir le commentaire sur
+        // Fiches modèle connues de love20 (#121 → #122, 21/10/2026) : voir le commentaire sur
         // LEGACY_MODEL_IDS plus haut. "libertine" est volontairement absent de cette liste.
+        // #122 : relayer vers la racine love20 (/<id>/) donnait une page SANS le menu de
+        // gauche — ce template "public" de love20 n'inclut pas le chrome complet au chargement
+        // direct (capture utilisateur sur /capucine/). /app/vente/<id>/ (même route que la
+        // page de vente, déjà confirmée avec menu complet sur /app/vente/libertine/) l'a bien.
         ...LEGACY_MODEL_IDS.map((id) => ({
           source: `/${id}/`,
-          destination: `${LEGACY_APP_ORIGIN}/${id}/`,
+          destination: `${LEGACY_APP_ORIGIN}/app/vente/${id}/`,
         })),
         // TOUT /app/* (#118, 21/10/2026) : nos propres pages app/app/{feed,me,mine,
         // generate,live,compte}/page.tsx (tâche #104) étaient des réimplémentations
