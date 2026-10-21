@@ -88,6 +88,13 @@ const nextConfig: NextConfig = {
         // noindex global sur /app/* (vercel.json + robots.txt), pour qu'elle reste
         // indexable sur l'URL publique propre /vente/....
         { source: "/vente/:path*/", destination: `${LEGACY_APP_ORIGIN}/app/vente/:path*/` },
+        // Feed public (#117, 21/10/2026) : même logique que le blog et vente — notre
+        // propre app/feed/page.tsx était une version "allégée" (grille simple, sans
+        // filtres, sans aperçus privés verrouillés) alors que love20 a le vrai feed
+        // (679 posts, filtres public/privé/séries, cartes verrouillées "Pass requis").
+        // Le client doit voir CE feed-là dès la première visite sur l'URL publique
+        // /feed/, pas une maquette différente. Relais direct vers /app/feed/.
+        { source: "/feed/", destination: `${LEGACY_APP_ORIGIN}/app/feed/` },
         ...LEGACY_ROOT_PAGES.flatMap((p) => [
           { source: `/${p}/`, destination: `${LEGACY_APP_ORIGIN}/${p}/` },
           { source: `/${p}/:path*/`, destination: `${LEGACY_APP_ORIGIN}/${p}/:path*/` },
