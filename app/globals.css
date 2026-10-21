@@ -965,6 +965,10 @@ svg.i {
   color: var(--red);
   background: var(--red-soft);
 }
+.topnav a .i {
+  width: 18px;
+  height: 18px;
+}
 
 /* ---- menu de gauche (identique à l'app : love20/app.css .side*) ----
    Sous 1000px, c'est un tiroir hors-écran (transform), pas un simple display:none —

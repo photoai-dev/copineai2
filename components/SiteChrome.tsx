@@ -26,6 +26,7 @@ const ICONS: Record<string, string> = {
     '<path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.3-6.2 3.3L7 14.2 2 9.3l6.9-1z"/>',
   menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
 };
 
 function Icon({ name }: { name: string }) {
@@ -61,13 +62,17 @@ const SIDE: { id: string; label: string; icon: string; href: string; badge?: str
   { id: "compagnons", label: "Compagnons", icon: "star", href: "/compagnons/" },
 ];
 
+// Même menu du haut que love20 (var HTABS dans index.html : discover/live/mine/
+// pass/blog/studio) — identique sur toutes les pages du vrai site, dont /app/feed/.
+// Ce menu différait sur les pages Next.js (Modèles/Feed/Blog/Guides/Tarifs/FAQ) :
+// signalé comme incohérent (#109), corrigé ici pour matcher le menu réel partout.
 const TOPNAV = [
-  { href: "/", label: "Modèles" },
-  { href: "/feed/", label: "Feed" },
-  { href: "/blog/", label: "Blog" },
-  { href: "/guides/", label: "Guides" },
-  { href: "/tarifs/", label: "Tarifs" },
-  { href: "/faq/", label: "FAQ" },
+  { href: "/", label: "Découvrir", icon: "grid" },
+  { href: "/live/", label: "Live Streaming", icon: "flame" },
+  { href: "/", label: "Modèles", icon: "heart" },
+  { href: "/tarifs/", label: "Pass", icon: "star" },
+  { href: "/blog/", label: "Blog", icon: "book" },
+  { href: "/app/studio/", label: "Studio", icon: "sparkle" },
 ];
 
 export function SiteHeader() {
@@ -82,7 +87,8 @@ export function SiteHeader() {
         </a>
         <nav className="topnav" aria-label="Navigation principale">
           {TOPNAV.map((n) => (
-            <a key={n.href} href={n.href}>
+            <a key={n.label} href={n.href}>
+              <Icon name={n.icon} />
               {n.label}
             </a>
           ))}
