@@ -579,5 +579,34 @@
       "soft": "#fde7e9",
       "tint": "#fff6f6"
     }
+  },
+  "libertine": {
+    "id": "libertine",
+    "name": "Kim & Anaïs",
+    "full": "Kim & Anaïs — Les Libertines",
+    "dir": "lib",
+    "job": "Photographes de charme",
+    "city": "Paris",
+    "age": 24,
+    "handleLine": "Duo d'âmes numériques · Photographes de charme",
+    "tagline": "Deux âmes, un couple, zéro tabou",
+    "traits": [
+      "Joueuses",
+      "Coquines",
+      "Câlines"
+    ],
+    "cats": [
+      "Libertine",
+      "Duo"
+    ],
+    "bio": "Kim (24 ans, brune) et Anaïs (25 ans, blonde), en couple, photographes de charme et libertines assumées. On se raconte tout, sans tabou ni jugement : nos shootings, nos fantasmes, nos envies à deux.",
+    "cover": "live-cover",
+    "avatarAlt": "Portrait de Kim et Anaïs",
+    "theme": {
+      "ac": "#8e24aa",
+      "dk": "#6a1b86",
+      "soft": "#f0dff5",
+      "tint": "#faf5fc"
+    }
   }
 }

@@ -15,7 +15,7 @@ export type Model = {
   traits: string[];
   cats: string[];
   bio: string;
-  cover: number;
+  cover: number | string;
   avatarAlt: string;
   theme: ModelTheme | null;
 };
@@ -28,6 +28,9 @@ export const MODEL_ORDER = [
   "sophie", "jessica", "jenny", "anna", "nina", "liloo", "natasha", "lee",
   "alma", "olivia", "annabelle", "cindy", "ayo", "nabilla", "charlotte",
   "beatrice", "aya", "capucine",
+  // Kim & Anaïs (#libertine) : dernier modèle activé en base (20/10/2026), absent du
+  // snapshot JSON pris lors de la migration initiale — ajouté ici (#113).
+  "libertine",
 ];
 
 export function getAllModels(): Model[] {
