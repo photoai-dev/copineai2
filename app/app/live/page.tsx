@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Image from "next/image";
 import { getAllModels, modelAvatar } from "@/lib/models";
 import { getLiveEligible } from "@/app/actions/live";
@@ -46,19 +45,19 @@ export default async function LiveHubPage() {
               <div className="p-3">
                 <b className="block text-sm">{m.name}</b>
                 {ok ? (
-                  <Link
+                  <a
                     href={`/app/live/${m.id}/`}
                     className="mt-2 block rounded-full bg-neutral-900 px-3 py-1.5 text-center text-xs font-semibold text-white"
                   >
                     Lancer le live · {pricing.entry_credits} crédits
-                  </Link>
+                  </a>
                 ) : (
-                  <Link
+                  <a
                     href={`/app/me/?m=${m.id}`}
                     className="mt-2 block rounded-full border border-neutral-300 px-3 py-1.5 text-center text-xs font-semibold"
                   >
                     Discuter
-                  </Link>
+                  </a>
                 )}
               </div>
             </div>

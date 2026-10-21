@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "./globals.css";
 import { SITE_NAME } from "@/lib/site";
 import { SiteHeader, SiteSidebar } from "@/components/SiteChrome";
@@ -27,14 +26,14 @@ function Footer() {
       <div className="mx-auto max-w-5xl px-5 py-8 text-sm text-neutral-500">
         <nav aria-label="Liens légaux">
           <ul className="flex flex-wrap gap-4">
-            <li><Link href="/">Accueil</Link></li>
-            <li><Link href="/blog/">Blog</Link></li>
-            <li><Link href="/guides/">Guides</Link></li>
-            <li><Link href="/faq/">FAQ</Link></li>
-            <li><Link href="/cgu/">CGU</Link></li>
-            <li><Link href="/confidentialite/">Confidentialité</Link></li>
-            <li><Link href="/charte/">Charte d&apos;utilisation</Link></li>
-            <li><Link href="/aide/">Aide et contact</Link></li>
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/blog/">Blog</a></li>
+            <li><a href="/guides/">Guides</a></li>
+            <li><a href="/faq/">FAQ</a></li>
+            <li><a href="/cgu/">CGU</a></li>
+            <li><a href="/confidentialite/">Confidentialité</a></li>
+            <li><a href="/charte/">Charte d&apos;utilisation</a></li>
+            <li><a href="/aide/">Aide et contact</a></li>
           </ul>
         </nav>
         {/* Pas de new Date() ici : valeur non déterministe, interdite au prerender sous

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getSessionUser, getProfileStatus } from "@/lib/dal";
@@ -25,9 +24,9 @@ export default async function MinePage() {
       {conversations.length === 0 ? (
         <p className="mt-6 text-sm text-neutral-500">
           Tu n'as encore discuté avec personne.{" "}
-          <Link href="/app/me/" className="underline">
+          <a href="/app/me/" className="underline">
             Lance une conversation
-          </Link>
+          </a>
           .
         </p>
       ) : (
@@ -37,7 +36,7 @@ export default async function MinePage() {
             if (!m) return null;
             return (
               <li key={c.modelId}>
-                <Link
+                <a
                   href={`/app/me/?m=${m.id}`}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-neutral-50"
                 >
@@ -55,7 +54,7 @@ export default async function MinePage() {
                       {c.lastMessage ?? "Dis bonjour !"}
                     </p>
                   </div>
-                </Link>
+                </a>
               </li>
             );
           })}

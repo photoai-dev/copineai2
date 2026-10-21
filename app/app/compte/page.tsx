@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser, getProfileStatus } from "@/lib/dal";
 import { getAccountOverview } from "@/app/actions/account";
@@ -48,9 +47,9 @@ export default async function MemberAccountPage() {
         <p className="mt-3 text-sm text-neutral-500">
           Le paiement en ligne n'est pas encore activé — les forfaits payants ne peuvent pas
           encore être souscrits directement sur le site.{" "}
-          <Link href="/tarifs/" className="underline">
+          <a href="/tarifs/" className="underline">
             Voir les offres
-          </Link>
+          </a>
           .
         </p>
       </section>

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 
 // Page tarifs publique — reprend les vrais niveaux définis dans l'app (objet TIERS,
@@ -53,7 +52,7 @@ export default function TarifsPage() {
   return (
     <div className="mx-auto max-w-5xl px-5 py-10">
       <nav className="mb-6 text-sm text-neutral-500">
-        <Link href="/">Accueil</Link> <span>›</span> <span>Tarifs</span>
+        <a href="/">Accueil</a> <span>›</span> <span>Tarifs</span>
       </nav>
       <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
         Nos forfaits

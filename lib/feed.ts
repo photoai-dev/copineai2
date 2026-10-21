@@ -43,10 +43,14 @@ export async function getPublicFeed(limit = 60): Promise<FeedPost[]> {
   "use cache";
   cacheLife("hours");
 
+  // Uniquement des photos (kind=image) : les vidéos publiques n'ont pas de poster
+  // (colonne poster toujours nulle en base pour l'instant), donc une vignette vidéo
+  // ici s'affichait en vignette grise vide (pas d'erreur, juste rien à montrer avant
+  // lecture, preload="none") — demande explicite : le feed public doit être des photos.
   const url =
     `${SUPABASE_URL}/rest/v1/posts` +
     `?select=id,model_id,kind,caption,media,poster,published_at` +
-    `&status=eq.published&access=eq.pub` +
+    `&status=eq.published&access=eq.pub&kind=eq.image` +
     `&order=published_at.desc&limit=${limit}`;
 
   try {
