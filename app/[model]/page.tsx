@@ -8,6 +8,7 @@ import {
   modelCoverPhoto,
 } from "@/lib/models";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
+import { getPublicFeed, feedMediaUrl } from "@/lib/feed";
 
 // Pas de `revalidate` ici : les données modèles viennent d'un import JSON statique
 // (snapshot pris sur l'ancien site), donc la page est déjà entièrement statique au build —
@@ -64,6 +65,12 @@ export default async function ModelPage({
   const m = getModel(id);
   if (!m) notFound();
 
+  // Aperçu public : quelques photos réelles du modèle (posts "pub" publiés), pour que
+  // la fiche montre du contenu vérifiable plutôt qu'une simple carte d'identité.
+  const photos = (await getPublicFeed(60))
+    .filter((p) => p.model_id === m.id && p.kind === "image" && p.media)
+    .slice(0, 6);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
@@ -116,6 +123,23 @@ export default async function ModelPage({
                 style={{ background: "color-mix(in srgb, var(--ac) 12%, #fff)", color: "color-mix(in srgb, var(--ac) 65%, #000)" }}
               >
                 {t}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
+        {photos.length ? (
+          <ul className="mt-8 grid grid-cols-3 gap-2">
+            {photos.map((p) => (
+              <li key={p.id} className="aspect-[3/4] overflow-hidden rounded-xl bg-neutral-100">
+                <Image
+                  src={feedMediaUrl(p.media)}
+                  alt={p.caption || `Photo de ${m.name}`}
+                  width={300}
+                  height={400}
+                  className="h-full w-full object-cover"
+                  unoptimized
+                />
               </li>
             ))}
           </ul>
