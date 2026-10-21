@@ -22,24 +22,14 @@ const LEGACY_ROOT_FILES = ["app.css", "manifest.webmanifest"];
 // chemins absolus /assets/*.css — sans ce relais, ces pages s'affichaient sans
 // aucun style (menu invisible, pas cassé mais non stylé).
 const LEGACY_ASSET_PREFIXES = ["assets", "img", "icons"];
-// Fiches modèle (#108, 20/10/2026 → #113, 21/10/2026 → #121, 21/10/2026) : le relais vers
-// love20 avait été retiré en #113 en pensant que app/[model]/page.tsx (bio, traits, aperçu
-// feed, CTA, JSON-LD) suffisait. FAUX : love20 affiche un vrai profil membre (bannière, avatar,
-// stats publications/vidéos/souvenirs, boutons "S'abonner"/"Message", humeur, forfait/crédits,
-// grille de miniatures) — notre page est une coquille à côté (cf captures utilisateur, #121).
-// Même logique que /feed/ (#117) et /app/* (#118) : on relaie vers la vraie version plutôt que
-// de maintenir une version "light" en parallèle. Limite : love20 a son propre jeu de données
-// figé (gelé, non redéployé) et ne connaît PAS "libertine" (Kim & Anaïs, modèle ajouté le
-// 20/10/2026 après ce gel — cf lib/models.ts) : la relayer donnerait la même page générique
-// "Cette présentation arrive bientôt" que /app/vente/libertine/. Donc la liste ci-dessous est
-// explicite (tous les ids de MODEL_ORDER sauf "libertine"), pas "tout sauf la liste noire" —
-// pour que tout nouveau modèle futur, absent de love20 par construction, continue de tomber sur
-// notre propre app/[model]/page.tsx (route dynamique, étape 7) plutôt que sur un relais cassé.
-const LEGACY_MODEL_IDS = [
-  "sophie", "jessica", "jenny", "anna", "nina", "liloo", "natasha", "lee",
-  "alma", "olivia", "annabelle", "cindy", "ayo", "nabilla", "charlotte",
-  "beatrice", "aya", "capucine",
-];
+// Fiches modèle (#108, 20/10/2026 → #113 → #121 → #122 → #123, 22/10/2026) : relayées vers
+// love20 un temps (#121/#122) pour avoir son menu et sa mise en page complète, mais love20 est
+// gelé (jamais redéployé) et ne lit pas la table posts — son contenu date de la snapshot du
+// 08/10 (ex. Lee : 27 anciennes photos en dur au lieu de ses 121 posts actuels gérés depuis
+// l'admin). app/[model]/page.tsx a maintenant sa propre vraie mise en page (bannière, stats,
+// onglets Public/Privé/Bloqué) qui lit Supabase EN DIRECT (lib/feed.ts, getModelFeed) : plus
+// besoin de relais, pour aucun modèle, y compris "libertine" (Kim & Anaïs). Les routes
+// dynamiques gagnent déjà contre le fallback (étape 7 avant 8), donc rien à ajouter ici.
 // "blog" n'est PAS ici : il a son propre jeu de règles ci-dessous, pointant vers la version
 // complète /app/blog/ (menus app), pas la version allégée /blog/ — demande explicite : le
 // blog public doit être la vraie version, pas une version light. love20 exempte /app/blog/
@@ -106,16 +96,9 @@ const nextConfig: NextConfig = {
         // Le client doit voir CE feed-là dès la première visite sur l'URL publique
         // /feed/, pas une maquette différente. Relais direct vers /app/feed/.
         { source: "/feed/", destination: `${LEGACY_APP_ORIGIN}/app/feed/` },
-        // Fiches modèle connues de love20 (#121 → #122, 21/10/2026) : voir le commentaire sur
-        // LEGACY_MODEL_IDS plus haut. "libertine" est volontairement absent de cette liste.
-        // #122 : relayer vers la racine love20 (/<id>/) donnait une page SANS le menu de
-        // gauche — ce template "public" de love20 n'inclut pas le chrome complet au chargement
-        // direct (capture utilisateur sur /capucine/). /app/vente/<id>/ (même route que la
-        // page de vente, déjà confirmée avec menu complet sur /app/vente/libertine/) l'a bien.
-        ...LEGACY_MODEL_IDS.map((id) => ({
-          source: `/${id}/`,
-          destination: `${LEGACY_APP_ORIGIN}/app/vente/${id}/`,
-        })),
+        // Fiches modèle (#121 → #122 → #123) : plus de relais vers love20, voir le commentaire
+        // plus haut. app/[model]/page.tsx (route dynamique) sert maintenant toutes les fiches,
+        // avec son propre contenu en direct depuis Supabase.
         // TOUT /app/* (#118, 21/10/2026) : nos propres pages app/app/{feed,me,mine,
         // generate,live,compte}/page.tsx (tâche #104) étaient des réimplémentations
         // partielles — sans les filtres, compteurs, cartes "Pass requis" de love20 —

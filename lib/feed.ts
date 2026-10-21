@@ -39,6 +39,36 @@ export async function getMemberFeed(
   return data as FeedPost[];
 }
 
+// Fiche modèle (#123, 22/10/2026) : contenu public réel d'UN modèle (photos + vidéos),
+// pour la grille "Public" de la vraie fiche profil (cf app/[model]/page.tsx). Même
+// restriction RLS que getPublicFeed (clé anon, posts access=pub/status=published
+// uniquement) — on ne peut PAS lire le nombre réel de posts "priv"/"ppv" avec cette
+// clé (RLS les cache entièrement, y compris pour un COUNT), donc les onglets Privé/
+// Bloqué de la fiche restent des teasers génériques, sans compteur exact.
+export async function getModelFeed(modelId: string, limit = 60): Promise<FeedPost[]> {
+  "use cache";
+  cacheLife("hours");
+
+  const url =
+    `${SUPABASE_URL}/rest/v1/posts` +
+    `?select=id,model_id,kind,caption,media,poster,published_at` +
+    `&status=eq.published&access=eq.pub&model_id=eq.${encodeURIComponent(modelId)}` +
+    `&order=published_at.desc&limit=${limit}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    if (!res.ok) return [];
+    return (await res.json()) as FeedPost[];
+  } catch {
+    return [];
+  }
+}
+
 export async function getPublicFeed(limit = 60): Promise<FeedPost[]> {
   "use cache";
   cacheLife("hours");

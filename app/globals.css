@@ -1254,3 +1254,209 @@ svg.i {
     padding-left: var(--sw);
   }
 }
+
+/* ---- fiche modèle complète (#123, 22/10/2026) : bannière, stats, onglets
+   Public/Privé/Bloqué — pensée pour remplacer le relais vers love20 (menu
+   correct, mais contenu figé au 08/10) par une vraie page lisant Supabase
+   en direct. Onglets en pur CSS (input radio + ~), même recette que la
+   sidebar (.side-toggle) : pas de JS, cohérent avec le reste du site. ---- */
+.mp-banner {
+  aspect-ratio: 16 / 7;
+  max-height: 340px;
+  background: var(--surface2);
+  position: relative;
+  overflow: hidden;
+}
+.mp-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mp-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: -44px;
+  padding: 0 20px;
+  position: relative;
+}
+.mp-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  object-fit: cover;
+  background: var(--surface2);
+  flex: none;
+}
+.mp-head h1 {
+  font-family: var(--display);
+  letter-spacing: -0.02em;
+  font-size: 26px;
+  font-weight: 800;
+  margin: 0;
+}
+.mp-head h1 span {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 17px;
+}
+.mp-sub {
+  color: var(--muted);
+  font-size: 13.5px;
+  margin: 2px 0 10px;
+}
+.mp-stats {
+  display: flex;
+  gap: 28px;
+  padding: 14px 20px 0;
+}
+.mp-stats b {
+  display: block;
+  font-size: 19px;
+  font-weight: 800;
+}
+.mp-stats span {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.mp-bio {
+  padding: 16px 20px 0;
+  line-height: 1.55;
+  max-width: 68ch;
+}
+.mp-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 20px 0;
+  list-style: none;
+  margin: 0;
+}
+.mp-traits li {
+  background: var(--red-soft);
+  color: var(--red-dk);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.mp-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 18px 20px 0;
+}
+.mp-cta a {
+  border-radius: 999px;
+  padding: 11px 22px;
+  font-weight: 700;
+  font-size: 14.5px;
+  text-decoration: none;
+  display: inline-block;
+}
+.mp-cta .mp-sub-btn {
+  background: var(--red);
+  color: #fff;
+}
+.mp-cta .mp-sub-btn:hover {
+  background: var(--red-dk);
+}
+.mp-cta .mp-msg-btn {
+  background: var(--surface2);
+  color: var(--ink);
+}
+.mp-cta .mp-msg-btn:hover {
+  background: var(--line);
+}
+.mp-tabset {
+  padding: 26px 20px 40px;
+}
+.mp-tab-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.mp-tabbar {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 16px;
+}
+.mp-tabbar label {
+  padding: 10px 16px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.mp-panel {
+  display: none;
+}
+#mp-t-pub:checked ~ .mp-tabbar label[for="mp-t-pub"],
+#mp-t-priv:checked ~ .mp-tabbar label[for="mp-t-priv"],
+#mp-t-bloq:checked ~ .mp-tabbar label[for="mp-t-bloq"] {
+  color: var(--ink);
+  border-bottom-color: var(--red);
+}
+#mp-t-pub:checked ~ [data-panel="pub"],
+#mp-t-priv:checked ~ [data-panel="priv"],
+#mp-t-bloq:checked ~ [data-panel="bloq"] {
+  display: block;
+}
+.mp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 3px;
+}
+.mp-grid li {
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--surface2);
+  position: relative;
+}
+.mp-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mp-grid .mp-vid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #0000004d;
+  color: #fff;
+}
+.mp-empty {
+  color: var(--muted);
+  padding: 30px 0;
+  text-align: center;
+}
+.mp-locked {
+  text-align: center;
+  border: 2px dashed var(--line);
+  border-radius: 22px;
+  padding: 44px 24px;
+}
+.mp-locked h3 {
+  font-family: var(--display);
+  margin: 10px 0 6px;
+  font-size: 19px;
+}
+.mp-locked p {
+  color: var(--muted);
+  max-width: 44ch;
+  margin: 0 auto 16px;
+}
+@media (max-width: 640px) {
+  .mp-head {
+    margin-top: -36px;
+  }
+  .mp-avatar {
+    width: 72px;
+    height: 72px;
+  }
+}

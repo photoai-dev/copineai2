@@ -9,7 +9,7 @@ import {
   modelCtaHref,
 } from "@/lib/models";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
-import { getPublicFeed, feedMediaUrl } from "@/lib/feed";
+import { getModelFeed, feedMediaUrl } from "@/lib/feed";
 
 // Pas de `revalidate` ici : les données modèles viennent d'un import JSON statique
 // (snapshot pris sur l'ancien site), donc la page est déjà entièrement statique au build —
@@ -57,6 +57,14 @@ export async function generateMetadata({
   };
 }
 
+// Vraie fiche modèle (#123, 22/10/2026) : remplace le relais vers love20 (#121/#122).
+// Le relais donnait le bon menu mais un contenu figé à la snapshot du 08/10 (love20
+// gelé, jamais redéployé, ne lit pas la table posts) — ex. Lee avait 27 anciennes
+// photos en dur au lieu de ses 121 posts actuels gérés depuis l'admin. Cette page lit
+// Supabase en direct (getModelFeed, clé anon + RLS access=pub uniquement) : bannière,
+// stats, onglets Public/Privé/Bloqué en CSS pur (même recette que la sidebar).
+// Privé/Bloqué restent des teasers génériques sans compteur : la clé anon ne peut pas
+// lire ces posts (RLS les cache entièrement), donc pas de chiffre inventé.
 export default async function ModelPage({
   params,
 }: {
@@ -66,11 +74,9 @@ export default async function ModelPage({
   const m = getModel(id);
   if (!m) notFound();
 
-  // Aperçu public : quelques photos réelles du modèle (posts "pub" publiés), pour que
-  // la fiche montre du contenu vérifiable plutôt qu'une simple carte d'identité.
-  const photos = (await getPublicFeed(60))
-    .filter((p) => p.model_id === m.id && p.kind === "image" && p.media)
-    .slice(0, 6);
+  const posts = await getModelFeed(m.id, 60);
+  const images = posts.filter((p) => p.kind === "image" && p.media);
+  const videos = posts.filter((p) => p.kind === "video" && p.media);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -94,66 +100,141 @@ export default async function ModelPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <section className="mx-auto max-w-3xl px-5 py-10">
-        <div className="flex items-center gap-4">
-          <Image
-            src={modelAvatar(m)}
-            alt={m.avatarAlt}
-            width={72}
-            height={72}
-            className="rounded-full object-cover"
-            unoptimized
-          />
-          <div>
-            <h1 className="text-2xl font-extrabold">
-              {m.name}
-              {m.age ? <span className="font-medium text-neutral-500"> · {m.age} ans</span> : null}
-            </h1>
-            <p className="text-sm text-neutral-500">{m.handleLine}</p>
+
+      <div className="mp-banner">
+        <Image
+          src={modelCoverPhoto(m)}
+          alt={`Photo de couverture de ${m.name}`}
+          fill
+          sizes="100vw"
+          unoptimized
+          priority
+        />
+      </div>
+
+      <div className="mp-head">
+        <Image
+          src={modelAvatar(m)}
+          alt={m.avatarAlt}
+          width={88}
+          height={88}
+          className="mp-avatar"
+          unoptimized
+        />
+        <div>
+          <h1>
+            {m.name}
+            {m.age ? <span> · {m.age} ans</span> : null}
+          </h1>
+        </div>
+      </div>
+      <p className="mp-sub" style={{ padding: "0 20px" }}>
+        {m.handleLine}
+      </p>
+
+      <div className="mp-stats">
+        <div>
+          <b>{images.length}</b>
+          <span>publications</span>
+        </div>
+        <div>
+          <b>{videos.length}</b>
+          <span>vidéos</span>
+        </div>
+      </div>
+
+      <p className="mp-bio">{m.bio}</p>
+
+      {m.traits?.length ? (
+        <ul className="mp-traits">
+          {m.traits.map((t) => (
+            <li key={t}>{t}</li>
+          ))}
+        </ul>
+      ) : null}
+
+      <div className="mp-cta">
+        <a href="/tarifs/" className="mp-sub-btn">
+          S&apos;abonner
+        </a>
+        <a href={modelCtaHref(m)} className="mp-msg-btn">
+          Discuter avec {m.name}
+        </a>
+      </div>
+
+      <div className="mp-tabset">
+        <input type="radio" name="mp-tab" id="mp-t-pub" className="mp-tab-input" defaultChecked />
+        <input type="radio" name="mp-tab" id="mp-t-priv" className="mp-tab-input" />
+        <input type="radio" name="mp-tab" id="mp-t-bloq" className="mp-tab-input" />
+
+        <div className="mp-tabbar">
+          <label htmlFor="mp-t-pub">Public</label>
+          <label htmlFor="mp-t-priv">Privé</label>
+          <label htmlFor="mp-t-bloq">Bloqué</label>
+        </div>
+
+        <div className="mp-panel" data-panel="pub">
+          {images.length || videos.length ? (
+            <ul className="mp-grid">
+              {images.map((p) => (
+                <li key={p.id}>
+                  <Image
+                    src={feedMediaUrl(p.media)}
+                    alt={p.caption || `Photo de ${m.name}`}
+                    width={300}
+                    height={400}
+                    unoptimized
+                  />
+                </li>
+              ))}
+              {videos.map((p) => (
+                <li key={p.id}>
+                  {p.poster ? (
+                    <Image
+                      src={feedMediaUrl(p.poster)}
+                      alt={p.caption || `Vidéo de ${m.name}`}
+                      width={300}
+                      height={400}
+                      unoptimized
+                    />
+                  ) : null}
+                  <span className="mp-vid" aria-hidden="true">
+                    ▶
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mp-empty">Pas encore de publication publique.</p>
+          )}
+        </div>
+
+        <div className="mp-panel" data-panel="priv">
+          <div className="mp-locked">
+            <h3>Contenu réservé aux abonnés</h3>
+            <p>
+              {m.name} partage des photos et vidéos privées avec ses abonnés. Abonne-toi pour y
+              accéder.
+            </p>
+            <a href="/tarifs/" className="mp-sub-btn">
+              S&apos;abonner
+            </a>
           </div>
         </div>
 
-        <p className="mt-6 text-lg leading-relaxed">{m.bio}</p>
-
-        {m.traits?.length ? (
-          <ul className="mt-5 flex flex-wrap gap-2">
-            {m.traits.map((t) => (
-              <li
-                key={t}
-                className="rounded-full px-3 py-1 text-sm font-semibold"
-                style={{ background: "color-mix(in srgb, var(--ac) 12%, #fff)", color: "color-mix(in srgb, var(--ac) 65%, #000)" }}
-              >
-                {t}
-              </li>
-            ))}
-          </ul>
-        ) : null}
-
-        {photos.length ? (
-          <ul className="mt-8 grid grid-cols-3 gap-2">
-            {photos.map((p) => (
-              <li key={p.id} className="aspect-[3/4] overflow-hidden rounded-xl bg-neutral-100">
-                <Image
-                  src={feedMediaUrl(p.media)}
-                  alt={p.caption || `Photo de ${m.name}`}
-                  width={300}
-                  height={400}
-                  className="h-full w-full object-cover"
-                  unoptimized
-                />
-              </li>
-            ))}
-          </ul>
-        ) : null}
-
-        <a
-          href={modelCtaHref(m)}
-          className="mt-8 inline-block rounded-full px-6 py-3 font-bold text-white"
-          style={{ background: "var(--ac)" }}
-        >
-          Discuter avec {m.name}
-        </a>
-      </section>
+        <div className="mp-panel" data-panel="bloq">
+          <div className="mp-locked">
+            <h3>Contenu à débloquer</h3>
+            <p>
+              Certaines publications de {m.name} se débloquent individuellement. Discute avec elle
+              pour les découvrir.
+            </p>
+            <a href={modelCtaHref(m)} className="mp-msg-btn">
+              Discuter avec {m.name}
+            </a>
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
