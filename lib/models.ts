@@ -41,6 +41,18 @@ export function getModel(id: string): Model | undefined {
   return MODELS[id];
 }
 
+// Modèles sans page de vente côté love20 (/app/vente/<id>/) : trop récents, pas
+// encore ajoutés à son propre jeu de données (#120) — love20 affiche alors un
+// générique "Cette présentation arrive bientôt... découvre Sophie" au lieu de
+// la vraie fiche du modèle demandé. Le CTA "Discuter" pointe directement vers
+// le chat pour ces modèles-là, en attendant que love20 ait sa vraie page de
+// vente. Retirer l'id d'ici dès que /app/vente/<id>/ fonctionne réellement.
+const NO_VENTE_PAGE = new Set(["libertine"]);
+
+export function modelCtaHref(m: Pick<Model, "id">): string {
+  return NO_VENTE_PAGE.has(m.id) ? `/app/me/?m=${m.id}` : `/app/vente/${m.id}/`;
+}
+
 const CDN_BASE =
   "https://allbwtoexfxupksbvfnh.supabase.co/storage/v1/object/public/media-public/site/";
 

@@ -6,6 +6,7 @@ import {
   getModel,
   modelAvatar,
   modelCoverPhoto,
+  modelCtaHref,
 } from "@/lib/models";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 import { getPublicFeed, feedMediaUrl } from "@/lib/feed";
@@ -146,7 +147,7 @@ export default async function ModelPage({
         ) : null}
 
         <a
-          href={`/app/vente/${m.id}/`}
+          href={modelCtaHref(m)}
           className="mt-8 inline-block rounded-full px-6 py-3 font-bold text-white"
           style={{ background: "var(--ac)" }}
         >
