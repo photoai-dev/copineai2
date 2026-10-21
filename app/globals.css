@@ -966,7 +966,15 @@ svg.i {
   background: var(--red-soft);
 }
 
-/* ---- menu de gauche (identique à l'app : love20/app.css .side*) ---- */
+/* ---- menu de gauche (identique à l'app : love20/app.css .side*) ----
+   Sous 1000px, c'est un tiroir hors-écran (transform), pas un simple display:none —
+   la case à cocher cachée (#side-toggle) + les sélecteurs ~ pilotent l'ouverture,
+   sans JavaScript, pour rester un vrai <a href> indexable. */
+.side-toggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
 .side {
   position: fixed;
   z-index: 70;
@@ -974,12 +982,85 @@ svg.i {
   left: 0;
   bottom: 0;
   width: var(--sw);
-  display: none;
+  display: flex;
   flex-direction: column;
   background: #0d0b12;
   color: #e9e6f0;
   border-right: 1px solid #ffffff14;
   overflow: hidden;
+  transform: translateX(-102%);
+  transition: transform 0.25s ease;
+}
+.side-x {
+  display: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  place-items: center;
+  color: inherit;
+  cursor: pointer;
+  margin-left: auto;
+}
+.side-x:hover {
+  background: #ffffff14;
+}
+.side-ov {
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+  background: #0008;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  cursor: default;
+}
+.side-burger {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  place-items: center;
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  margin-right: 2px;
+}
+.side-burger .i {
+  width: 22px;
+  height: 22px;
+}
+.side-toggle:checked ~ .side {
+  transform: none;
+  box-shadow: 0 0 60px #0009;
+}
+.side-toggle:checked ~ .side-ov {
+  opacity: 1;
+  pointer-events: auto;
+}
+.side-toggle:checked ~ .side .side-x {
+  display: grid;
+}
+.ab-auth {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+.ab-auth a {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13.5px;
+}
+.ab-auth a.pri {
+  background: var(--red);
+  color: #fff;
+}
+.ab-auth a:not(.pri) {
+  color: var(--ink);
+}
+.ab-auth a:not(.pri):hover {
+  background: var(--surface2);
 }
 .side a {
   font: inherit;
@@ -1112,9 +1193,21 @@ svg.i {
   color: #fff;
 }
 
+@media (max-width: 999px) {
+  .ab-auth a:not(.pri) {
+    display: none;
+  }
+}
 @media (min-width: 1000px) {
-  .side {
-    display: flex;
+  .side,
+  .side-toggle:checked ~ .side {
+    transform: none;
+  }
+  .side-ov {
+    display: none;
+  }
+  .side-burger {
+    display: none;
   }
   body {
     padding-left: var(--sw);

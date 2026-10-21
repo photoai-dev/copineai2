@@ -25,6 +25,8 @@ const ICONS: Record<string, string> = {
     '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>',
   star:
     '<path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8-6.2-3.3-6.2 3.3L7 14.2 2 9.3l6.9-1z"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
 };
 
 function Icon({ name }: { name: string }) {
@@ -73,6 +75,9 @@ export function SiteHeader() {
   return (
     <header className="appbar">
       <div className="appbar-in">
+        <label htmlFor="side-toggle" className="side-burger" aria-label="Ouvrir le menu">
+          <Icon name="menu" />
+        </label>
         <Link href="/" className="logo">
           {SITE_NAME}
         </Link>
@@ -83,6 +88,12 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
+        <div className="ab-auth">
+          <Link href="/compte/">Connexion</Link>
+          <Link href="/compte/" className="pri">
+            Inscription
+          </Link>
+        </div>
       </div>
     </header>
   );
@@ -90,11 +101,17 @@ export function SiteHeader() {
 
 export function SiteSidebar() {
   return (
-    <aside id="side" className="side" aria-label="Menu principal">
+    <>
+      <input type="checkbox" id="side-toggle" className="side-toggle" aria-hidden="true" />
+      <label htmlFor="side-toggle" className="side-ov" aria-hidden="true" />
+      <aside id="side" className="side" aria-label="Menu principal">
       <div className="side-top">
         <Link href="/" className="side-logo" aria-label="CopineAI, accueil">
           Copine<b>AI</b>
         </Link>
+        <label htmlFor="side-toggle" className="side-x" aria-label="Fermer le menu">
+          <Icon name="close" />
+        </label>
       </div>
       <nav className="side-nav" aria-label="Menu principal">
         {SIDE.map((s) => (
@@ -130,6 +147,7 @@ export function SiteSidebar() {
           <Link href="/webmaster/">Partenaires</Link>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
