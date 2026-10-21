@@ -70,12 +70,20 @@ export const metadata: Metadata = {
 export default function HomePage() {
   const models = getAllModels();
   const hero = [models[0], models[1], models[2]].filter(Boolean);
-  const sales = models.slice(0, 4);
 
   return (
     <main className="mx-auto max-w-[1240px] px-4">
       {/* Héros */}
       <section className="hx">
+        <Image
+          src="https://love20-nine.vercel.app/bg/0.webp"
+          alt=""
+          fill
+          priority
+          unoptimized
+          className="hx-bg"
+          aria-hidden="true"
+        />
         <div className="hx-txt">
           <span className="hx-eyebrow">
             <i /> {models.length} univers · 1 histoire par jour · 24 h/24
@@ -176,6 +184,23 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
+        <Link href="/castel/" className="cp-ban" aria-label="Entrer au Castel Pink">
+          <Image
+            src="https://love20-nine.vercel.app/c/5.webp"
+            alt=""
+            fill
+            unoptimized
+            className="cp-ban-bg"
+          />
+          <span className="cp-ban-in">
+            <small>Nouveau · Castel Pink</small>
+            <b>Une histoire par jour, à voix basse</b>
+            <span>Cinq voix, des confessions, de l&apos;ASMR, des photos.</span>
+            <span className="cp-ban-av">
+              <u>Entrer au Castel</u>
+            </span>
+          </span>
+        </Link>
       </section>
 
       {/* Comment ça marche */}
@@ -367,7 +392,7 @@ export default function HomePage() {
               </Link>
             </div>
           </article>
-          {sales.map((m) => (
+          {models.map((m) => (
             <article key={m.id} className="sl-tzc" style={{ background: m.theme?.ac }}>
               <Image src={modelCoverPhoto(m)} alt="" width={320} height={320} unoptimized />
               <div>

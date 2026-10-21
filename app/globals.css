@@ -247,6 +247,107 @@
 .hx-spec i {
   flex: 1;
 }
+.hx-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: right center;
+  z-index: 0;
+  pointer-events: none;
+}
+.hx::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(90deg, #14061aee 0%, #14061acc 38%, #14061a33 70%, transparent 100%);
+  pointer-events: none;
+}
+.hx > .hx-txt,
+.hx > .hx-art,
+.hx > .hx-spec {
+  position: relative;
+  z-index: 1;
+}
+.hx > .hx-spec {
+  position: absolute;
+}
+
+/* bandeau Castel Pink */
+.cp-ban {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 18px 0 0;
+  background: #0c0309;
+  min-height: 220px;
+  box-shadow: 0 0 0 1px #e0118a88, 0 16px 50px -16px #e0118a99;
+  text-decoration: none;
+}
+.cp-ban-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.75;
+}
+.cp-ban::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #0c0309ee 10%, #0c030955 70%, transparent);
+}
+.cp-ban-in {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px 22px;
+  color: #fff;
+  max-width: 560px;
+}
+.cp-ban-in small {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ff8ccb;
+}
+.cp-ban-in b {
+  font-family: var(--display);
+  font-size: clamp(24px, 5vw, 34px);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-shadow: 0 0 22px #ff2e9a;
+}
+.cp-ban-in > span {
+  color: #ffd9ec;
+  font-size: 14px;
+}
+.cp-ban-av {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 6px;
+}
+.cp-ban-av u {
+  text-decoration: none;
+  margin-left: 14px;
+  background: #e0118a;
+  color: #fff;
+  border-radius: 999px;
+  padding: 9px 16px;
+  font-weight: 700;
+  font-size: 13.5px;
+  box-shadow: 0 0 20px #e0118a99;
+}
 
 /* grille modèles */
 .cgrid {
