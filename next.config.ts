@@ -43,9 +43,11 @@ const BOT_UA = "(?:[Bb]ot|[Ss]pider|[Cc]rawl|facebookexternalhit|whatsapp|[Tt]el
 // blog public doit être la vraie version, pas une version light. love20 exempte /app/blog/
 // de son noindex global sur /app/* (vercel.json + robots.txt), donc elle reste indexable
 // même affichée sur l'URL publique /blog/.
+// cgu/confidentialite/charte/aide : migrées vers de vraies pages Next.js (#112),
+// retirées d'ici.
 const LEGACY_ROOT_PAGES = [
-  "faq", "guides", "lexique", "charte", "cgu",
-  "confidentialite", "aide", "quiz", "alix", "compagnons", "pass",
+  "faq", "guides", "lexique",
+  "quiz", "alix", "compagnons", "pass",
   // Ajoutés : liens présents dans le menu de love20 (index.html) mais absents de cette
   // liste jusqu'ici, donc avalés en 404 par notre route dynamique /[model] (même cause
   // que le blog à l'origine — cf commentaire plus haut) au lieu d'être relayés.
