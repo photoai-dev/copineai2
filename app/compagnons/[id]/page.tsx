@@ -7,26 +7,28 @@ export function generateStaticParams() {
   return COMPANION_IDS.map((id) => ({ id }));
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
-}): Metadata {
-  const c = getCompanion(params.id);
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const c = getCompanion(id);
   if (!c) return {};
   return {
     title: `${c.nameAge} | Compagnons ${SITE_NAME} (bientôt)`,
     description: `${c.nameAge}, ${c.job}. ${c.lead}`,
-    alternates: { canonical: `${SITE_URL}/compagnons/${params.id}/` },
+    alternates: { canonical: `${SITE_URL}/compagnons/${id}/` },
   };
 }
 
-export default function CompagnonPage({
+export default async function CompagnonPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const c = getCompanion(params.id);
+  const { id } = await params;
+  const c = getCompanion(id);
   if (!c) notFound();
 
   return (
@@ -66,7 +68,7 @@ export default function CompagnonPage({
       </p>
       <div className="mt-2 flex gap-3">
         <a
-          href={`/compagnons/${params.id}/`}
+          href={`/compagnons/${id}/`}
           className="rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white"
         >
           Me prévenir de son arrivée
