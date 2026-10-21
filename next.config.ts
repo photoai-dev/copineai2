@@ -95,6 +95,19 @@ const nextConfig: NextConfig = {
         // Le client doit voir CE feed-là dès la première visite sur l'URL publique
         // /feed/, pas une maquette différente. Relais direct vers /app/feed/.
         { source: "/feed/", destination: `${LEGACY_APP_ORIGIN}/app/feed/` },
+        // TOUT /app/* (#118, 21/10/2026) : nos propres pages app/app/{feed,me,mine,
+        // generate,live,compte}/page.tsx (tâche #104) étaient des réimplémentations
+        // partielles — sans les filtres, compteurs, cartes "Pass requis" de love20 —
+        // qui n'interceptaient QUE la navigation directe/rafraîchissement (une page
+        // vue/chargée côté serveur Next.js gagne contre le fallback). Qui naviguait
+        // depuis l'intérieur de love20 (SPA, routage client) voyait la vraie version;
+        // qui arrivait directement sur l'URL voyait notre version allégée — incohérence
+        // selon le point d'entrée. Un seul relais générique règle tout, présent et
+        // futur, au lieu d'une liste au cas par cas : love20 reste l'unique source pour
+        // /app/* tant que nos pages ne sont pas à parité. (Session partagée : même
+        // domaine, même projet Supabase — pas de perte de connexion en traversant.)
+        { source: "/app/", destination: `${LEGACY_APP_ORIGIN}/app/` },
+        { source: "/app/:path*/", destination: `${LEGACY_APP_ORIGIN}/app/:path*/` },
         ...LEGACY_ROOT_PAGES.flatMap((p) => [
           { source: `/${p}/`, destination: `${LEGACY_APP_ORIGIN}/${p}/` },
           { source: `/${p}/:path*/`, destination: `${LEGACY_APP_ORIGIN}/${p}/:path*/` },
