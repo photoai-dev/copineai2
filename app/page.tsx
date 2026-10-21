@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Image from "next/image";
 import { getAllModels, modelAvatar, modelCoverPhoto } from "@/lib/models";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
@@ -95,12 +94,12 @@ export default function HomePage() {
             et la conversation continue d&apos;un jour à l&apos;autre.
           </p>
           <div className="hx-cta">
-            <Link href="#models" className="btn big">
+            <a href="#models" className="btn big">
               Discuter avec les modèles
-            </Link>
-            <Link href="/blog/" className="btn big ghd">
+            </a>
+            <a href="/blog/" className="btn big ghd">
               Lire le journal
-            </Link>
+            </a>
           </div>
           <ul className="hx-trust">
             <li>18 ans et plus</li>
@@ -149,13 +148,13 @@ export default function HomePage() {
                 } as React.CSSProperties
               }
             >
-              <Link href={`/${m.id}/`} className="mc-img" aria-label={`Découvrir ${m.name}`}>
+              <a href={`/${m.id}/`} className="mc-img" aria-label={`Découvrir ${m.name}`}>
                 <Image src={modelAvatar(m)} alt={m.avatarAlt} width={320} height={400} unoptimized />
                 <span className="mcst">
                   <span className="dot" style={{ width: 7, height: 7, borderRadius: "50%", background: "#12a150", display: "inline-block" }} />
                   en ligne
                 </span>
-              </Link>
+              </a>
               <div className="mc-band" />
               <div className="mc-body">
                 <h3>{m.name}</h3>
@@ -169,9 +168,9 @@ export default function HomePage() {
                   ))}
                 </div>
                 <div className="mc-foot c">
-                  <Link href={`/${m.id}/`} className="btn">
+                  <a href={`/${m.id}/`} className="btn">
                     Découvrir {m.name}
-                  </Link>
+                  </a>
                 </div>
               </div>
             </article>
@@ -179,12 +178,12 @@ export default function HomePage() {
           <div className="soon">
             <h3>La prochaine arrive bientôt</h3>
             <p>Un nouveau modèle par mois, avec son style, ses couleurs et sa personnalité.</p>
-            <Link href="/compagnons/" className="btn out">
+            <a href="/compagnons/" className="btn out">
               Me prévenir
-            </Link>
+            </a>
           </div>
         </div>
-        <Link href="/castel/" className="cp-ban" aria-label="Entrer au Castel Pink">
+        <a href="/castel/" className="cp-ban" aria-label="Entrer au Castel Pink">
           <Image
             src="https://love20-nine.vercel.app/c/5.webp"
             alt=""
@@ -200,7 +199,7 @@ export default function HomePage() {
               <u>Entrer au Castel</u>
             </span>
           </span>
-        </Link>
+        </a>
       </section>
 
       {/* Comment ça marche */}
@@ -249,9 +248,9 @@ export default function HomePage() {
               Telegram, photos à la demande) restent par modèle. Tarif indicatif : 59,99 €/mois.
             </p>
           </div>
-          <Link href="/tarifs/" className="btn">
+          <a href="/tarifs/" className="btn">
             Voir le pass
-          </Link>
+          </a>
         </div>
       </section>
 
@@ -265,15 +264,15 @@ export default function HomePage() {
               applications, confiance en soi, cuisine, voyage, élégance.
             </p>
           </div>
-          <Link href="/blog/" className="linkbtn">
+          <a href="/blog/" className="linkbtn">
             Tous les articles
-          </Link>
+          </a>
         </div>
         <div className="bgrid">
           {BLOG_PREVIEW.map((p) => {
             const author = models.find((m) => m.id === p.author);
             return (
-              <Link key={p.id} href={`/blog/${p.id}/`} className="bc">
+              <a key={p.id} href={`/blog/${p.id}/`} className="bc">
                 <span className="bc-img">
                   <Image
                     src={author ? modelCoverPhoto(author) : modelAvatar(models[0])}
@@ -296,7 +295,7 @@ export default function HomePage() {
                   <h3>{p.title}</h3>
                   <p>{p.excerpt}</p>
                 </span>
-              </Link>
+              </a>
             );
           })}
         </div>
@@ -309,9 +308,9 @@ export default function HomePage() {
             <h2>Questions fréquentes</h2>
             <p>Les réponses aux questions qu&apos;on nous pose le plus. Les 30 sont sur la page FAQ.</p>
           </div>
-          <Link href="/faq/" className="linkbtn">
+          <a href="/faq/" className="linkbtn">
             Voir les 30 questions
-          </Link>
+          </a>
         </div>
         <div className="faqbox">
           {FAQ_PREVIEW.map((f, i) => (
@@ -333,15 +332,15 @@ export default function HomePage() {
             <h2>{models.length} modèles aujourd&apos;hui, bien d&apos;autres demain : laquelle te correspond ?</h2>
             <p>Neuf questions, deux minutes, et nous te proposons les personnalités les plus proches de ce que tu cherches.</p>
           </div>
-          <Link href="/quiz/" className="btn big">
+          <a href="/quiz/" className="btn big">
             Faire le questionnaire
-          </Link>
+          </a>
         </div>
       </section>
 
       {/* Alix */}
       <section className="sec alx-bn">
-        <Link href="/alix/" className="alx-bnr" aria-label="Découvrir Alix">
+        <a href="/alix/" className="alx-bnr" aria-label="Découvrir Alix">
           <Image
             src="https://love20-nine.vercel.app/al/bn/colis.webp"
             alt="Alix, enquêtrice IA anti-arnaques"
@@ -349,7 +348,7 @@ export default function HomePage() {
             height={400}
             unoptimized
           />
-        </Link>
+        </a>
         <div>
           <span className="hx-eyebrow">
             <i /> Gratuite pour les membres
@@ -361,12 +360,12 @@ export default function HomePage() {
             jamais.
           </p>
           <div className="alx-bn-a">
-            <Link href="/alix/" className="btn">
+            <a href="/alix/" className="btn">
               Analyser un message
-            </Link>
-            <Link href="/alix/" className="btn gh">
+            </a>
+            <a href="/alix/" className="btn gh">
               Lui écrire
-            </Link>
+            </a>
           </div>
         </div>
       </section>
@@ -387,9 +386,9 @@ export default function HomePage() {
               </span>
               <h3>Les {models.length}, une seule clé</h3>
               <p>Trouve celle qui te correspond et compare le Pass aux forfaits à l&apos;unité.</p>
-              <Link href="/tarifs/" className="btn">
+              <a href="/tarifs/" className="btn">
                 Voir le Pass
-              </Link>
+              </a>
             </div>
           </article>
           {models.map((m) => (
@@ -398,9 +397,9 @@ export default function HomePage() {
               <div>
                 <h3>{m.name}</h3>
                 <p>{m.tagline}</p>
-                <Link href={`/${m.id}/`} className="btn">
+                <a href={`/${m.id}/`} className="btn">
                   Découvrir {m.name}
-                </Link>
+                </a>
               </div>
             </article>
           ))}
@@ -420,9 +419,9 @@ export default function HomePage() {
               préparons, étape par étape, sans promesse de date.
             </p>
           </div>
-          <Link href="/timeline/" className="btn big">
+          <a href="/timeline/" className="btn big">
             Voir la feuille de route
-          </Link>
+          </a>
         </div>
       </section>
 
@@ -430,9 +429,9 @@ export default function HomePage() {
       <section className="cta-end">
         <h2>Une conversation vaut mieux qu&apos;un long discours.</h2>
         <p>Choisis une modèle, dis-lui bonjour. Si ça ne te plaît pas, tu n&apos;as rien payé.</p>
-        <Link href="#models" className="btn big">
+        <a href="#models" className="btn big">
           Choisir une modèle
-        </Link>
+        </a>
       </section>
     </main>
   );

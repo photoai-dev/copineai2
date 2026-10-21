@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { SITE_NAME } from "@/lib/site";
 
 // Même identité visuelle que l'app (love20) : sidebar sombre + topnav en pilules,
@@ -78,21 +77,21 @@ export function SiteHeader() {
         <label htmlFor="side-toggle" className="side-burger" aria-label="Ouvrir le menu">
           <Icon name="menu" />
         </label>
-        <Link href="/" className="logo">
+        <a href="/" className="logo" aria-label={SITE_NAME}>
           {SITE_NAME}
-        </Link>
+        </a>
         <nav className="topnav" aria-label="Navigation principale">
           {TOPNAV.map((n) => (
-            <Link key={n.href} href={n.href}>
+            <a key={n.href} href={n.href}>
               {n.label}
-            </Link>
+            </a>
           ))}
         </nav>
         <div className="ab-auth">
-          <Link href="/compte/">Connexion</Link>
-          <Link href="/compte/" className="pri">
+          <a href="/compte/">Connexion</a>
+          <a href="/compte/" className="pri">
             Inscription
-          </Link>
+          </a>
         </div>
       </div>
     </header>
@@ -106,45 +105,45 @@ export function SiteSidebar() {
       <label htmlFor="side-toggle" className="side-ov" aria-hidden="true" />
       <aside id="side" className="side" aria-label="Menu principal">
       <div className="side-top">
-        <Link href="/" className="side-logo" aria-label="CopineAI, accueil">
+        <a href="/" className="side-logo" aria-label="CopineAI, accueil">
           Copine<b>AI</b>
-        </Link>
+        </a>
         <label htmlFor="side-toggle" className="side-x" aria-label="Fermer le menu">
           <Icon name="close" />
         </label>
       </div>
       <nav className="side-nav" aria-label="Menu principal">
         {SIDE.map((s) => (
-          <Link key={s.id} href={s.href} aria-label={s.label} title={s.label}>
+          <a key={s.id} href={s.href} aria-label={s.label} title={s.label}>
             <Icon name={s.icon} />
             <span>{s.label}</span>
             {s.badge ? <em>{s.badge}</em> : null}
-          </Link>
+          </a>
         ))}
         <div className="side-sep" role="presentation" />
-        <Link href="/pourquoi-une-petite-amie-ia/" aria-label="Pourquoi une petite amie IA ?">
+        <a href="/pourquoi-une-petite-amie-ia/" aria-label="Pourquoi une petite amie IA ?">
           <Icon name="heart" />
           <span>Pourquoi une copine IA ?</span>
           <em>Lire</em>
-        </Link>
+        </a>
       </nav>
       <div className="side-bot">
-        <Link href="/tarifs/" className="side-up">
+        <a href="/tarifs/" className="side-up">
           <Icon name="crown" />
           <span>Passer à l’abonnement</span>
-        </Link>
+        </a>
         <div className="side-gu">
-          <Link href="/compte/">Connexion</Link>
-          <Link href="/compte/" className="pri">
+          <a href="/compte/">Connexion</a>
+          <a href="/compte/" className="pri">
             Inscription
-          </Link>
+          </a>
         </div>
         <div className="side-ft">
-          <Link href="/faq/">FAQ</Link>
+          <a href="/faq/">FAQ</a>
           <span>·</span>
-          <Link href="/timeline/">Timeline</Link>
+          <a href="/timeline/">Timeline</a>
           <span>·</span>
-          <Link href="/webmaster/">Partenaires</Link>
+          <a href="/webmaster/">Partenaires</a>
         </div>
       </div>
       </aside>

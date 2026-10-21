@@ -1073,7 +1073,10 @@ svg.i {
   align-items: center;
   padding: 20px 18px 14px;
 }
-.side-logo {
+.side .side-logo {
+  /* spécificité : doit battre ".side a { font: inherit }" juste au-dessus,
+     sinon le shorthand "font" y écrase font-family/weight/size/style et le
+     logo retombe à la taille du texte de navigation normal. */
   font-family: var(--display);
   font-weight: 800;
   font-size: 25px;
@@ -1207,6 +1210,12 @@ svg.i {
     display: none;
   }
   .side-burger {
+    display: none;
+  }
+  /* Le logo de la sidebar suffit sur desktop : inutile de le répéter dans le
+     menu du haut (et ça évitait le rouge en double). Il reste visible sous
+     1000px, où la sidebar est hors-écran par défaut. */
+  .appbar-in > .logo {
     display: none;
   }
   body {
