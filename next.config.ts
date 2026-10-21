@@ -5,12 +5,19 @@ import type { NextConfig } from "next";
 // (le domaine passe à ce projet-ci) — seulement cet alias fixe du projet.
 const LEGACY_APP_ORIGIN = "https://love20-nine.vercel.app";
 
-// Fichiers ET pages legacy à un seul segment (/blog, /app.css, /sw.js...) : un seul segment
+// Fichiers ET pages legacy à un seul segment (/blog, /app.css...) : un seul segment
 // de chemin veut dire que notre route dynamique /[model] les avale AVANT le relais "fallback"
 // vers love20 (elle matche n'importe quel segment unique, renvoie notFound() si ce n'est pas
 // un id de modèle connu — cf doc Next.js, ordre de routage : dynamique = étape 7, avant
 // "fallback" = étape 8). On les relaie explicitement en amont, via beforeFiles (étape 4).
-const LEGACY_ROOT_FILES = ["app.css", "manifest.webmanifest", "sw.js"];
+// "sw.js" n'est PLUS relayé vers love20 (#110) : les navigateurs qui ont visité le
+// site avant la bascule du domaine ont encore l'ancien service worker de love20
+// enregistré et actif sur www.copineai.com — il intercepte les navigations et sert
+// parfois une page "/" en cache (vieille version), d'où "2 pages d'accueil différentes"
+// selon qu'on arrive en direct ou qu'on revient en arrière. On sert désormais NOTRE
+// propre /sw.js (public/sw.js), un "kill switch" qui se désenregistre lui-même et
+// vide le cache dès qu'un de ces navigateurs revérifie le service worker.
+const LEGACY_ROOT_FILES = ["app.css", "manifest.webmanifest"];
 // Les pages statiques /blog/ de love20 (voir plus bas) chargent leur CSS via des
 // chemins absolus /assets/*.css — sans ce relais, ces pages s'affichaient sans
 // aucun style (menu invisible, pas cassé mais non stylé).
