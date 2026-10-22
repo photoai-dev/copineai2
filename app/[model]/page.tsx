@@ -9,7 +9,7 @@ import {
   modelCtaHref,
 } from "@/lib/models";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
-import { getModelFeed, feedMediaUrl } from "@/lib/feed";
+import { getModelMedia, feedMediaUrl } from "@/lib/feed";
 
 // Pas de `revalidate` ici : les données modèles viennent d'un import JSON statique
 // (snapshot pris sur l'ancien site), donc la page est déjà entièrement statique au build —
@@ -57,14 +57,16 @@ export async function generateMetadata({
   };
 }
 
-// Vraie fiche modèle (#123, 22/10/2026) : remplace le relais vers love20 (#121/#122).
+// Vraie fiche modèle (#123 → #125, 22/10/2026) : remplace le relais vers love20 (#121/#122).
 // Le relais donnait le bon menu mais un contenu figé à la snapshot du 08/10 (love20
-// gelé, jamais redéployé, ne lit pas la table posts) — ex. Lee avait 27 anciennes
-// photos en dur au lieu de ses 121 posts actuels gérés depuis l'admin. Cette page lit
-// Supabase en direct (getModelFeed, clé anon + RLS access=pub uniquement) : bannière,
-// stats, onglets Public/Privé/Bloqué en CSS pur (même recette que la sidebar).
-// Privé/Bloqué restent des teasers génériques sans compteur : la clé anon ne peut pas
-// lire ces posts (RLS les cache entièrement), donc pas de chiffre inventé.
+// gelé, jamais redéployé, ne lit ni posts ni media). Cette page lit Supabase en direct :
+// bannière, stats, onglets Public/Privé/Bloqué en CSS pur (même recette que la sidebar).
+// La grille "Public" et les compteurs viennent de public.media (#125) — la vraie
+// photothèque gérée depuis l'admin (filtres Modèle/Origine/Type/Visibilité), PAS de
+// public.posts (qui alimente le fil /feed/ séparé) : c'est "media" que l'admin remplit,
+// donc c'est "media" que les modèles comme Kim & Anaïs (libertine) y voient apparaître.
+// Privé/Bloqué restent des teasers génériques sans compteur : la clé anon ne lit que
+// visibility=public (restriction volontaire, cf lib/feed.ts), donc pas de chiffre inventé.
 export default async function ModelPage({
   params,
 }: {
@@ -74,9 +76,9 @@ export default async function ModelPage({
   const m = getModel(id);
   if (!m) notFound();
 
-  const posts = await getModelFeed(m.id, 60);
-  const images = posts.filter((p) => p.kind === "image" && p.media);
-  const videos = posts.filter((p) => p.kind === "video" && p.media);
+  const media = await getModelMedia(m.id, 60);
+  const images = media.filter((p) => p.kind === "photo" && p.path);
+  const videos = media.filter((p) => p.kind === "video" && p.path);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -177,7 +179,7 @@ export default async function ModelPage({
               {images.map((p) => (
                 <li key={p.id}>
                   <Image
-                    src={feedMediaUrl(p.media)}
+                    src={feedMediaUrl(p.path)}
                     alt={p.caption || `Photo de ${m.name}`}
                     width={300}
                     height={400}
@@ -187,9 +189,9 @@ export default async function ModelPage({
               ))}
               {videos.map((p) => (
                 <li key={p.id}>
-                  {p.poster ? (
+                  {p.thumb_path ? (
                     <Image
-                      src={feedMediaUrl(p.poster)}
+                      src={feedMediaUrl(p.thumb_path)}
                       alt={p.caption || `Vidéo de ${m.name}`}
                       width={300}
                       height={400}

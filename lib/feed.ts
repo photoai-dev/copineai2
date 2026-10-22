@@ -69,6 +69,47 @@ export async function getModelFeed(modelId: string, limit = 60): Promise<FeedPos
   }
 }
 
+export type MediaItem = {
+  id: string;
+  model_id: string;
+  kind: "photo" | "video";
+  caption: string | null;
+  path: string;
+  thumb_path: string | null;
+  created_at: string;
+};
+
+// Photothèque (#125, 22/10/2026) : vraie source de la grille "Public" d'une fiche modèle —
+// table public.media (gérée depuis l'admin "Photothèque"), distincte de public.posts (le
+// fil "feed" séparé). RLS avait déjà la policy media_read_public mais aucun GRANT pour anon
+// (migration grant_anon_select_public_media) : sans lui l'API REST renvoyait une liste vide
+// même avec la bonne policy. Restriction volontairement plus stricte ici que ce que permet
+// la RLS : on ne lit QUE visibility=public (jamais private/blocked/draft) pour cette page
+// publique, même si la policy autoriserait aussi "private".
+export async function getModelMedia(modelId: string, limit = 60): Promise<MediaItem[]> {
+  "use cache";
+  cacheLife("hours");
+
+  const url =
+    `${SUPABASE_URL}/rest/v1/media` +
+    `?select=id,model_id,kind,caption,path,thumb_path,created_at` +
+    `&active=eq.true&visibility=eq.public&model_id=eq.${encodeURIComponent(modelId)}` +
+    `&order=created_at.desc&limit=${limit}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    if (!res.ok) return [];
+    return (await res.json()) as MediaItem[];
+  } catch {
+    return [];
+  }
+}
+
 export async function getPublicFeed(limit = 60): Promise<FeedPost[]> {
   "use cache";
   cacheLife("hours");
