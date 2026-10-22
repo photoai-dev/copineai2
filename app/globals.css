@@ -1276,7 +1276,8 @@ svg.i {
   display: flex;
   align-items: flex-end;
   gap: 16px;
-  margin-top: -44px;
+  max-width: 900px;
+  margin: -44px auto 0;
   padding: 0 20px;
   position: relative;
 }
@@ -1304,11 +1305,15 @@ svg.i {
 .mp-sub {
   color: var(--muted);
   font-size: 13.5px;
-  margin: 2px 0 10px;
+  max-width: 900px;
+  margin: 2px auto 10px;
+  padding: 0 20px;
 }
 .mp-stats {
   display: flex;
   gap: 28px;
+  max-width: 900px;
+  margin: 0 auto;
   padding: 14px 20px 0;
 }
 .mp-stats b {
@@ -1321,17 +1326,19 @@ svg.i {
   font-size: 12.5px;
 }
 .mp-bio {
+  max-width: 900px;
+  margin: 0 auto;
   padding: 16px 20px 0;
   line-height: 1.55;
-  max-width: 68ch;
 }
 .mp-traits {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  max-width: 900px;
+  margin: 0 auto;
   padding: 12px 20px 0;
   list-style: none;
-  margin: 0;
 }
 .mp-traits li {
   background: var(--red-soft);
@@ -1345,6 +1352,8 @@ svg.i {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  max-width: 900px;
+  margin: 0 auto;
   padding: 18px 20px 0;
 }
 .mp-cta a {
@@ -1370,6 +1379,8 @@ svg.i {
   background: var(--line);
 }
 .mp-tabset {
+  max-width: 900px;
+  margin: 0 auto;
   padding: 26px 20px 40px;
 }
 .mp-tab-input {

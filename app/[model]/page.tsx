@@ -128,9 +128,7 @@ export default async function ModelPage({
           </h1>
         </div>
       </div>
-      <p className="mp-sub" style={{ padding: "0 20px" }}>
-        {m.handleLine}
-      </p>
+      <p className="mp-sub">{m.handleLine}</p>
 
       <div className="mp-stats">
         <div>
