@@ -44,8 +44,7 @@ const LEGACY_ROOT_PAGES = [
   // Ajoutés : liens présents dans le menu de love20 (index.html) mais absents de cette
   // liste jusqu'ici, donc avalés en 404 par notre route dynamique /[model] (même cause
   // que le blog à l'origine — cf commentaire plus haut) au lieu d'être relayés.
-  "drague", "timeline", "webmaster", "pourquoi-une-petite-amie-ia", "live",
-  // "compte" retiré (08/11/2026) : vraie page désormais, voir plus bas.
+  "drague", "timeline", "webmaster", "pourquoi-une-petite-amie-ia", "live", "compte",
   // Critique avant la bascule du domaine (#107) : "/_gestion/" (entrée de l'admin, un seul
   // segment) tombait dans le même piège — avalée en 404 par /[model] au lieu d'atteindre
   // love20. Les sous-pages (/_gestion/vivix/ etc., 2+ segments) ne matchent pas /[model] et
@@ -85,26 +84,25 @@ const nextConfig: NextConfig = {
         // preuve contraire : /app/blog/ est la version JS, moins bonne pour le SEO.
         { source: "/blog/", destination: `${LEGACY_APP_ORIGIN}/blog/` },
         { source: "/blog/:path*/", destination: `${LEGACY_APP_ORIGIN}/blog/:path*/` },
-        // Pages de vente (/vente/alma/ etc.) : RETIRÉ (08/11/2026) — c'était exactement
-        // la duplication "profil light vs vraie version" que le client a signalée (deux
-        // pages différentes pour le même modèle selon le point d'entrée : /vente/<id>/
-        // relayé vers la SPA love20, /<id>/ sur notre vraie page Supabase). app/[model]/
-        // page.tsx est maintenant l'unique fiche modèle ; /vente/<id>/ redirige vers elle
-        // (redirects() ci-dessous), une seule URL, un seul contenu, plus de relais.
-        // Feed public et feed membre (#117, 21/10/2026 → #127, 08/11/2026) : relais retiré.
-        // /feed/ (public, posts access=pub) et /app/feed/ (membre, filtres réels Public/
-        // Privé/Bloqué avec verrou "Pass requis" selon le forfait et verrou prix sur le
-        // "ppv") sont maintenant de vraies pages lisant Supabase en direct — plus de
-        // version "allégée" distincte de love20. Pas de filtre "séries" : cette notion
-        // n'existe dans aucune colonne de la table posts, seulement dans le rendu JS de
-        // l'ancienne SPA ; on ne fabrique pas une donnée qui n'existe pas en base.
+        // Pages de vente (/vente/alma/ etc.) : même logique que le blog — on relaie
+        // la vraie page vers /app/vente/..., que love20 exempte désormais de son
+        // noindex global sur /app/* (vercel.json + robots.txt), pour qu'elle reste
+        // indexable sur l'URL publique propre /vente/....
+        { source: "/vente/:path*/", destination: `${LEGACY_APP_ORIGIN}/app/vente/:path*/` },
+        // Feed public (#117, 21/10/2026) : même logique que le blog et vente — notre
+        // propre app/feed/page.tsx était une version "allégée" (grille simple, sans
+        // filtres, sans aperçus privés verrouillés) alors que love20 a le vrai feed
+        // (679 posts, filtres public/privé/séries, cartes verrouillées "Pass requis").
+        // Le client doit voir CE feed-là dès la première visite sur l'URL publique
+        // /feed/, pas une maquette différente. Relais direct vers /app/feed/.
+        { source: "/feed/", destination: `${LEGACY_APP_ORIGIN}/app/feed/` },
         // Fiches modèle (#121 → #122 → #123) : plus de relais vers love20, voir le commentaire
         // plus haut. app/[model]/page.tsx (route dynamique) sert maintenant toutes les fiches,
         // avec son propre contenu en direct depuis Supabase.
-        // TOUT /app/* SAUF /app/me/ (#118, 21/10/2026 → #126, 08/11/2026) : nos propres pages
-        // app/app/{feed,mine,generate,live,compte}/page.tsx (tâche #104) étaient des
-        // réimplémentations partielles — sans les filtres, compteurs, cartes "Pass requis" de
-        // love20 — qui n'interceptaient QUE la navigation directe/rafraîchissement (une page
+        // TOUT /app/* (#118, 21/10/2026) : nos propres pages app/app/{feed,me,mine,
+        // generate,live,compte}/page.tsx (tâche #104) étaient des réimplémentations
+        // partielles — sans les filtres, compteurs, cartes "Pass requis" de love20 —
+        // qui n'interceptaient QUE la navigation directe/rafraîchissement (une page
         // vue/chargée côté serveur Next.js gagne contre le fallback). Qui naviguait
         // depuis l'intérieur de love20 (SPA, routage client) voyait la vraie version;
         // qui arrivait directement sur l'URL voyait notre version allégée — incohérence
@@ -112,31 +110,8 @@ const nextConfig: NextConfig = {
         // futur, au lieu d'une liste au cas par cas : love20 reste l'unique source pour
         // /app/* tant que nos pages ne sont pas à parité. (Session partagée : même
         // domaine, même projet Supabase — pas de perte de connexion en traversant.)
-        // /app/me/, /app/compte/, /app/mine/, /app/generate/, /app/live/ (hub), /app/feed/
-        // (PAS /app/live/<id>/ : la session live elle-même, pas encore vérifiée à parité,
-        // reste relayée) : vraies pages fonctionnelles côté copineai2, vérifiées non-stub
-        // (08/11/2026) — doivent rester sur NOS pages, pas celles de love20, sans quoi tout
-        // visiteur retombait sur l'ancienne version SPA, qui ignore nos évolutions récentes.
-        // Essayé d'abord : une règle séparée AVANT la générique, qui se "rewrite" vers
-        // elle-même (même chemin en destination). Ça ne marche PAS — Next.js reconnaît une
-        // destination identique au chemin demandé comme un no-op et continue d'évaluer les
-        // règles suivantes, qui relaient quand même vers love20 (vu en local : tentative de
-        // proxy vers love20-nine malgré cette règle). La bonne approche : exclure ces segments
-        // du paramètre capturé par la règle générique elle-même, via une regex à négation
-        // (path-to-regexp, doc Next.js : "Regex Path Matching"). Groupes capturants interdits
-        // dans ce regex (erreur de build Next sinon) — alternance sans parenthèses de groupe :
-        // "(?!me/?$|compte/?$|mine/?$|generate/?$|live/?$|feed/?$).*" refuse uniquement ces
-        // segments EXACTS (donc "live/sophie" reste relayé vers love20, seuls les segments
-        // listés exacts en sont exclus et retombent sur le routage normal de Next).
         { source: "/app/", destination: `${LEGACY_APP_ORIGIN}/app/` },
-        {
-          source: "/app/:path((?!me/?$|compte/?$|mine/?$|generate/?$|live/?$|feed/?$).*)/",
-          destination: `${LEGACY_APP_ORIGIN}/app/:path/`,
-        },
-        // "compte" retiré de LEGACY_ROOT_PAGES (08/11/2026) : /compte/ a sa propre vraie
-        // page (app/compte/page.tsx — formulaires de connexion/inscription + passerelle
-        // profil), elle aussi vérifiée réelle et non-stub. Même raisonnement que /vente/ :
-        // une seule version, la nôtre, plus de relais.
+        { source: "/app/:path*/", destination: `${LEGACY_APP_ORIGIN}/app/:path*/` },
         ...LEGACY_ROOT_PAGES.flatMap((p) => [
           { source: `/${p}/`, destination: `${LEGACY_APP_ORIGIN}/${p}/` },
           { source: `/${p}/:path*/`, destination: `${LEGACY_APP_ORIGIN}/${p}/:path*/` },
@@ -161,14 +136,6 @@ const nextConfig: NextConfig = {
         { source: "/:path*", destination: `${LEGACY_APP_ORIGIN}/:path*` },
       ],
     };
-  },
-  // /vente/<id>/ existait en double de la vraie fiche modèle /<id>/ (voir commentaire
-  // retiré ci-dessus) — redirect() est résolu avant rewrites() (doc Next.js : ordre de
-  // routage), donc cette redirection intercepte avant que /vente/* ne puisse retomber
-  // dans le fallback générique vers love20. 308 permanent : anciens liens/indexation Google
-  // vers /vente/<id>/ doivent transférer leur jus SEO vers la seule URL canonique.
-  async redirects() {
-    return [{ source: "/vente/:model/", destination: "/:model/", permanent: true }];
   },
   // Sans ça, les pages relayées depuis love20 (fallback ci-dessus : "/", /vente/*, /live/
   // avant correction, etc.) restaient figées en cache côté edge Vercel — un contenu mis à
