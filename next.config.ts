@@ -99,10 +99,10 @@ const nextConfig: NextConfig = {
         // Fiches modèle (#121 → #122 → #123) : plus de relais vers love20, voir le commentaire
         // plus haut. app/[model]/page.tsx (route dynamique) sert maintenant toutes les fiches,
         // avec son propre contenu en direct depuis Supabase.
-        // TOUT /app/* (#118, 21/10/2026) : nos propres pages app/app/{feed,me,mine,
-        // generate,live,compte}/page.tsx (tâche #104) étaient des réimplémentations
-        // partielles — sans les filtres, compteurs, cartes "Pass requis" de love20 —
-        // qui n'interceptaient QUE la navigation directe/rafraîchissement (une page
+        // TOUT /app/* SAUF /app/me/ (#118, 21/10/2026 → #126, 08/11/2026) : nos propres pages
+        // app/app/{feed,mine,generate,live,compte}/page.tsx (tâche #104) étaient des
+        // réimplémentations partielles — sans les filtres, compteurs, cartes "Pass requis" de
+        // love20 — qui n'interceptaient QUE la navigation directe/rafraîchissement (une page
         // vue/chargée côté serveur Next.js gagne contre le fallback). Qui naviguait
         // depuis l'intérieur de love20 (SPA, routage client) voyait la vraie version;
         // qui arrivait directement sur l'URL voyait notre version allégée — incohérence
@@ -110,8 +110,22 @@ const nextConfig: NextConfig = {
         // futur, au lieu d'une liste au cas par cas : love20 reste l'unique source pour
         // /app/* tant que nos pages ne sont pas à parité. (Session partagée : même
         // domaine, même projet Supabase — pas de perte de connexion en traversant.)
+        // /app/me/ (chat) est maintenant à parité (galerie média, mode sexy, rendu
+        // photo/vidéo) et doit rester sur NOTRE page (app/app/me/page.tsx), pas celle de
+        // love20 — sans quoi tout visiteur de /app/me/ retombait sur l'ancienne messagerie
+        // SPA de love20, qui ignore les évolutions récentes côté chat.
+        // Essayé d'abord : une règle séparée AVANT la générique, qui se "rewrite" vers
+        // elle-même (même chemin en destination). Ça ne marche PAS — Next.js reconnaît une
+        // destination identique au chemin demandé comme un no-op et continue d'évaluer les
+        // règles suivantes, qui relaient quand même vers love20 (vu en local : tentative de
+        // proxy vers love20-nine malgré cette règle). La bonne approche : exclure "me" du
+        // paramètre capturé par la règle générique elle-même, via une regex à négation
+        // (path-to-regexp, doc Next.js : "Regex Path Matching"). "(?!me/?$).*" refuse
+        // uniquement le segment EXACT "me" (donc "mine", "me/quelquechose" restent relayés
+        // normalement vers love20, seul "/app/me/" exact en est exclu et retombe sur le
+        // routage fichier/page normal de Next, qui sert notre app/app/me/page.tsx).
         { source: "/app/", destination: `${LEGACY_APP_ORIGIN}/app/` },
-        { source: "/app/:path*/", destination: `${LEGACY_APP_ORIGIN}/app/:path*/` },
+        { source: "/app/:path((?!me/?$).*)/", destination: `${LEGACY_APP_ORIGIN}/app/:path/` },
         ...LEGACY_ROOT_PAGES.flatMap((p) => [
           { source: `/${p}/`, destination: `${LEGACY_APP_ORIGIN}/${p}/` },
           { source: `/${p}/:path*/`, destination: `${LEGACY_APP_ORIGIN}/${p}/:path*/` },
