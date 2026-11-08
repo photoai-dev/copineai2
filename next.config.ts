@@ -84,11 +84,12 @@ const nextConfig: NextConfig = {
         // preuve contraire : /app/blog/ est la version JS, moins bonne pour le SEO.
         { source: "/blog/", destination: `${LEGACY_APP_ORIGIN}/blog/` },
         { source: "/blog/:path*/", destination: `${LEGACY_APP_ORIGIN}/blog/:path*/` },
-        // Pages de vente (/vente/alma/ etc.) : même logique que le blog — on relaie
-        // la vraie page vers /app/vente/..., que love20 exempte désormais de son
-        // noindex global sur /app/* (vercel.json + robots.txt), pour qu'elle reste
-        // indexable sur l'URL publique propre /vente/....
-        { source: "/vente/:path*/", destination: `${LEGACY_APP_ORIGIN}/app/vente/:path*/` },
+        // Pages de vente (/vente/alma/ etc.) : RETIRÉ (08/11/2026) — c'était exactement
+        // la duplication "profil light vs vraie version" que le client a signalée (deux
+        // pages différentes pour le même modèle selon le point d'entrée : /vente/<id>/
+        // relayé vers la SPA love20, /<id>/ sur notre vraie page Supabase). app/[model]/
+        // page.tsx est maintenant l'unique fiche modèle ; /vente/<id>/ redirige vers elle
+        // (redirects() ci-dessous), une seule URL, un seul contenu, plus de relais.
         // Feed public (#117, 21/10/2026) : même logique que le blog et vente — notre
         // propre app/feed/page.tsx était une version "allégée" (grille simple, sans
         // filtres, sans aperçus privés verrouillés) alors que love20 a le vrai feed
@@ -150,6 +151,14 @@ const nextConfig: NextConfig = {
         { source: "/:path*", destination: `${LEGACY_APP_ORIGIN}/:path*` },
       ],
     };
+  },
+  // /vente/<id>/ existait en double de la vraie fiche modèle /<id>/ (voir commentaire
+  // retiré ci-dessus) — redirect() est résolu avant rewrites() (doc Next.js : ordre de
+  // routage), donc cette redirection intercepte avant que /vente/* ne puisse retomber
+  // dans le fallback générique vers love20. 308 permanent : anciens liens/indexation Google
+  // vers /vente/<id>/ doivent transférer leur jus SEO vers la seule URL canonique.
+  async redirects() {
+    return [{ source: "/vente/:model/", destination: "/:model/", permanent: true }];
   },
   // Sans ça, les pages relayées depuis love20 (fallback ci-dessus : "/", /vente/*, /live/
   // avant correction, etc.) restaient figées en cache côté edge Vercel — un contenu mis à
