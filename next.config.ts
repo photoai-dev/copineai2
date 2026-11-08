@@ -44,7 +44,8 @@ const LEGACY_ROOT_PAGES = [
   // Ajoutés : liens présents dans le menu de love20 (index.html) mais absents de cette
   // liste jusqu'ici, donc avalés en 404 par notre route dynamique /[model] (même cause
   // que le blog à l'origine — cf commentaire plus haut) au lieu d'être relayés.
-  "drague", "timeline", "webmaster", "pourquoi-une-petite-amie-ia", "live", "compte",
+  "drague", "timeline", "webmaster", "pourquoi-une-petite-amie-ia", "live",
+  // "compte" retiré (08/11/2026) : vraie page désormais, voir plus bas.
   // Critique avant la bascule du domaine (#107) : "/_gestion/" (entrée de l'admin, un seul
   // segment) tombait dans le même piège — avalée en 404 par /[model] au lieu d'atteindre
   // love20. Les sous-pages (/_gestion/vivix/ etc., 2+ segments) ne matchent pas /[model] et
@@ -111,22 +112,32 @@ const nextConfig: NextConfig = {
         // futur, au lieu d'une liste au cas par cas : love20 reste l'unique source pour
         // /app/* tant que nos pages ne sont pas à parité. (Session partagée : même
         // domaine, même projet Supabase — pas de perte de connexion en traversant.)
-        // /app/me/ (chat) est maintenant à parité (galerie média, mode sexy, rendu
-        // photo/vidéo) et doit rester sur NOTRE page (app/app/me/page.tsx), pas celle de
-        // love20 — sans quoi tout visiteur de /app/me/ retombait sur l'ancienne messagerie
-        // SPA de love20, qui ignore les évolutions récentes côté chat.
+        // /app/me/ (chat) et /app/compte/ (compte membre, 08/11/2026 : page réelle et
+        // complète — overview abonnement, crédits, déconnexion, suppression de compte,
+        // vérifiée non-stub) sont maintenant à parité et doivent rester sur NOS pages
+        // (app/app/me/, app/app/compte/), pas celles de love20 — sans quoi tout visiteur
+        // retombait sur l'ancienne version SPA, qui ignore nos évolutions récentes.
         // Essayé d'abord : une règle séparée AVANT la générique, qui se "rewrite" vers
         // elle-même (même chemin en destination). Ça ne marche PAS — Next.js reconnaît une
         // destination identique au chemin demandé comme un no-op et continue d'évaluer les
         // règles suivantes, qui relaient quand même vers love20 (vu en local : tentative de
-        // proxy vers love20-nine malgré cette règle). La bonne approche : exclure "me" du
-        // paramètre capturé par la règle générique elle-même, via une regex à négation
-        // (path-to-regexp, doc Next.js : "Regex Path Matching"). "(?!me/?$).*" refuse
-        // uniquement le segment EXACT "me" (donc "mine", "me/quelquechose" restent relayés
-        // normalement vers love20, seul "/app/me/" exact en est exclu et retombe sur le
-        // routage fichier/page normal de Next, qui sert notre app/app/me/page.tsx).
+        // proxy vers love20-nine malgré cette règle). La bonne approche : exclure ces segments
+        // du paramètre capturé par la règle générique elle-même, via une regex à négation
+        // (path-to-regexp, doc Next.js : "Regex Path Matching"). Groupes capturants interdits
+        // dans ce regex (erreur de build Next sinon) — alternance sans parenthèses de groupe :
+        // "(?!me/?$|compte/?$).*" refuse
+        // uniquement les segments EXACTS "me"/"compte" (donc "mine", "me/quelquechose" restent
+        // relayés normalement vers love20, seuls "/app/me/" et "/app/compte/" exacts en sont
+        // exclus et retombent sur le routage fichier/page normal de Next).
         { source: "/app/", destination: `${LEGACY_APP_ORIGIN}/app/` },
-        { source: "/app/:path((?!me/?$).*)/", destination: `${LEGACY_APP_ORIGIN}/app/:path/` },
+        {
+          source: "/app/:path((?!me/?$|compte/?$).*)/",
+          destination: `${LEGACY_APP_ORIGIN}/app/:path/`,
+        },
+        // "compte" retiré de LEGACY_ROOT_PAGES (08/11/2026) : /compte/ a sa propre vraie
+        // page (app/compte/page.tsx — formulaires de connexion/inscription + passerelle
+        // profil), elle aussi vérifiée réelle et non-stub. Même raisonnement que /vente/ :
+        // une seule version, la nôtre, plus de relais.
         ...LEGACY_ROOT_PAGES.flatMap((p) => [
           { source: `/${p}/`, destination: `${LEGACY_APP_ORIGIN}/${p}/` },
           { source: `/${p}/:path*/`, destination: `${LEGACY_APP_ORIGIN}/${p}/:path*/` },
