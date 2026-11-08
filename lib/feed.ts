@@ -19,6 +19,11 @@ export type FeedPost = {
   published_at: string;
 };
 
+export type MemberFeedPost = FeedPost & {
+  access: "pub" | "priv" | "ppv";
+  price_cents: number | null;
+};
+
 const MEDIA_BASE =
   "https://allbwtoexfxupksbvfnh.supabase.co/storage/v1/object/public/media-public/";
 
@@ -26,17 +31,22 @@ export function feedMediaUrl(path: string): string {
   return `${MEDIA_BASE}${path}`;
 }
 
-// Feed privé (membres connectés, compte actif) : pub + priv, via la fonction Postgres
-// member_feed (SECURITY DEFINER) — la table posts n'est pas lisible directement par un
-// membre standard (RLS réservée au staff). Jamais de contenu "ppv" ici (déblocage par
-// crédit, Tâche #90, pas encore construit).
+// Feed privé (membres connectés, compte actif) : pub + priv + ppv, via la fonction Postgres
+// member_feed_v2 (SECURITY DEFINER) — la table posts n'est pas lisible directement par un
+// membre standard (RLS réservée au staff). v2 (08/11/2026, #127) ajoute access/price_cents
+// et les posts "ppv" (déblocage par crédit, Tâche #90, toujours pas construit côté paiement —
+// ces posts restent donc toujours affichés verrouillés, jamais débloqués) par rapport à
+// l'ancienne member_feed, pour permettre les vrais filtres Public/Privé/Bloqué de /app/feed/
+// (parité avec love20) plutôt que la grille plate sans distinction d'avant. Fonction créée
+// à côté de member_feed (jamais DROP, confirmation destructive refusée par l'outil de
+// migration) : l'ancienne reste en place, inutilisée, jusqu'à nettoyage ultérieur.
 export async function getMemberFeed(
   supabase: import("@supabase/supabase-js").SupabaseClient,
   limit = 60
-): Promise<FeedPost[]> {
-  const { data, error } = await supabase.rpc("member_feed", { p_limit: limit });
+): Promise<MemberFeedPost[]> {
+  const { data, error } = await supabase.rpc("member_feed_v2", { p_limit: limit });
   if (error || !data) return [];
-  return data as FeedPost[];
+  return data as MemberFeedPost[];
 }
 
 // Fiche modèle (#123, 22/10/2026) : contenu public réel d'UN modèle (photos + vidéos),

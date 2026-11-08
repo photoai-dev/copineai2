@@ -91,13 +91,13 @@ const nextConfig: NextConfig = {
         // relayé vers la SPA love20, /<id>/ sur notre vraie page Supabase). app/[model]/
         // page.tsx est maintenant l'unique fiche modèle ; /vente/<id>/ redirige vers elle
         // (redirects() ci-dessous), une seule URL, un seul contenu, plus de relais.
-        // Feed public (#117, 21/10/2026) : même logique que le blog et vente — notre
-        // propre app/feed/page.tsx était une version "allégée" (grille simple, sans
-        // filtres, sans aperçus privés verrouillés) alors que love20 a le vrai feed
-        // (679 posts, filtres public/privé/séries, cartes verrouillées "Pass requis").
-        // Le client doit voir CE feed-là dès la première visite sur l'URL publique
-        // /feed/, pas une maquette différente. Relais direct vers /app/feed/.
-        { source: "/feed/", destination: `${LEGACY_APP_ORIGIN}/app/feed/` },
+        // Feed public et feed membre (#117, 21/10/2026 → #127, 08/11/2026) : relais retiré.
+        // /feed/ (public, posts access=pub) et /app/feed/ (membre, filtres réels Public/
+        // Privé/Bloqué avec verrou "Pass requis" selon le forfait et verrou prix sur le
+        // "ppv") sont maintenant de vraies pages lisant Supabase en direct — plus de
+        // version "allégée" distincte de love20. Pas de filtre "séries" : cette notion
+        // n'existe dans aucune colonne de la table posts, seulement dans le rendu JS de
+        // l'ancienne SPA ; on ne fabrique pas une donnée qui n'existe pas en base.
         // Fiches modèle (#121 → #122 → #123) : plus de relais vers love20, voir le commentaire
         // plus haut. app/[model]/page.tsx (route dynamique) sert maintenant toutes les fiches,
         // avec son propre contenu en direct depuis Supabase.
@@ -112,13 +112,11 @@ const nextConfig: NextConfig = {
         // futur, au lieu d'une liste au cas par cas : love20 reste l'unique source pour
         // /app/* tant que nos pages ne sont pas à parité. (Session partagée : même
         // domaine, même projet Supabase — pas de perte de connexion en traversant.)
-        // /app/me/, /app/compte/, /app/mine/, /app/generate/, /app/live/ (hub, PAS
-        // /app/live/<id>/ : la session live elle-même, pas encore vérifiée à parité, reste
-        // relayée) : vraies pages fonctionnelles côté copineai2, vérifiées non-stub
+        // /app/me/, /app/compte/, /app/mine/, /app/generate/, /app/live/ (hub), /app/feed/
+        // (PAS /app/live/<id>/ : la session live elle-même, pas encore vérifiée à parité,
+        // reste relayée) : vraies pages fonctionnelles côté copineai2, vérifiées non-stub
         // (08/11/2026) — doivent rester sur NOS pages, pas celles de love20, sans quoi tout
         // visiteur retombait sur l'ancienne version SPA, qui ignore nos évolutions récentes.
-        // Reste volontairement relayé : /feed/ (grille simplifiée, sans les filtres
-        // Public/Privé/Bloqué ni les cartes "Pass requis" — parité en cours).
         // Essayé d'abord : une règle séparée AVANT la générique, qui se "rewrite" vers
         // elle-même (même chemin en destination). Ça ne marche PAS — Next.js reconnaît une
         // destination identique au chemin demandé comme un no-op et continue d'évaluer les
@@ -127,12 +125,12 @@ const nextConfig: NextConfig = {
         // du paramètre capturé par la règle générique elle-même, via une regex à négation
         // (path-to-regexp, doc Next.js : "Regex Path Matching"). Groupes capturants interdits
         // dans ce regex (erreur de build Next sinon) — alternance sans parenthèses de groupe :
-        // "(?!me/?$|compte/?$|mine/?$|generate/?$|live/?$).*" refuse uniquement ces segments
-        // EXACTS (donc "live/sophie" reste relayé vers love20, seuls "/app/live/" exact et
-        // les autres listés en sont exclus et retombent sur le routage normal de Next).
+        // "(?!me/?$|compte/?$|mine/?$|generate/?$|live/?$|feed/?$).*" refuse uniquement ces
+        // segments EXACTS (donc "live/sophie" reste relayé vers love20, seuls les segments
+        // listés exacts en sont exclus et retombent sur le routage normal de Next).
         { source: "/app/", destination: `${LEGACY_APP_ORIGIN}/app/` },
         {
-          source: "/app/:path((?!me/?$|compte/?$|mine/?$|generate/?$|live/?$).*)/",
+          source: "/app/:path((?!me/?$|compte/?$|mine/?$|generate/?$|live/?$|feed/?$).*)/",
           destination: `${LEGACY_APP_ORIGIN}/app/:path/`,
         },
         // "compte" retiré de LEGACY_ROOT_PAGES (08/11/2026) : /compte/ a sa propre vraie
