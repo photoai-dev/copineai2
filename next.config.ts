@@ -112,11 +112,13 @@ const nextConfig: NextConfig = {
         // futur, au lieu d'une liste au cas par cas : love20 reste l'unique source pour
         // /app/* tant que nos pages ne sont pas à parité. (Session partagée : même
         // domaine, même projet Supabase — pas de perte de connexion en traversant.)
-        // /app/me/ (chat) et /app/compte/ (compte membre, 08/11/2026 : page réelle et
-        // complète — overview abonnement, crédits, déconnexion, suppression de compte,
-        // vérifiée non-stub) sont maintenant à parité et doivent rester sur NOS pages
-        // (app/app/me/, app/app/compte/), pas celles de love20 — sans quoi tout visiteur
-        // retombait sur l'ancienne version SPA, qui ignore nos évolutions récentes.
+        // /app/me/, /app/compte/, /app/mine/, /app/generate/, /app/live/ (hub, PAS
+        // /app/live/<id>/ : la session live elle-même, pas encore vérifiée à parité, reste
+        // relayée) : vraies pages fonctionnelles côté copineai2, vérifiées non-stub
+        // (08/11/2026) — doivent rester sur NOS pages, pas celles de love20, sans quoi tout
+        // visiteur retombait sur l'ancienne version SPA, qui ignore nos évolutions récentes.
+        // Reste volontairement relayé : /feed/ (grille simplifiée, sans les filtres
+        // Public/Privé/Bloqué ni les cartes "Pass requis" — parité en cours).
         // Essayé d'abord : une règle séparée AVANT la générique, qui se "rewrite" vers
         // elle-même (même chemin en destination). Ça ne marche PAS — Next.js reconnaît une
         // destination identique au chemin demandé comme un no-op et continue d'évaluer les
@@ -125,13 +127,12 @@ const nextConfig: NextConfig = {
         // du paramètre capturé par la règle générique elle-même, via une regex à négation
         // (path-to-regexp, doc Next.js : "Regex Path Matching"). Groupes capturants interdits
         // dans ce regex (erreur de build Next sinon) — alternance sans parenthèses de groupe :
-        // "(?!me/?$|compte/?$).*" refuse
-        // uniquement les segments EXACTS "me"/"compte" (donc "mine", "me/quelquechose" restent
-        // relayés normalement vers love20, seuls "/app/me/" et "/app/compte/" exacts en sont
-        // exclus et retombent sur le routage fichier/page normal de Next).
+        // "(?!me/?$|compte/?$|mine/?$|generate/?$|live/?$).*" refuse uniquement ces segments
+        // EXACTS (donc "live/sophie" reste relayé vers love20, seuls "/app/live/" exact et
+        // les autres listés en sont exclus et retombent sur le routage normal de Next).
         { source: "/app/", destination: `${LEGACY_APP_ORIGIN}/app/` },
         {
-          source: "/app/:path((?!me/?$|compte/?$).*)/",
+          source: "/app/:path((?!me/?$|compte/?$|mine/?$|generate/?$|live/?$).*)/",
           destination: `${LEGACY_APP_ORIGIN}/app/:path/`,
         },
         // "compte" retiré de LEGACY_ROOT_PAGES (08/11/2026) : /compte/ a sa propre vraie
