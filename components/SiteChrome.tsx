@@ -64,45 +64,19 @@ const SIDE: { id: string; label: string; icon: string; href: string; badge?: str
   { id: "compagnons", label: "Compagnons", icon: "star", href: "/compagnons/" },
 ];
 
-// Même menu du haut que love20 (var HTABS dans index.html : discover/live/mine/
-// pass/blog/studio) — identique sur toutes les pages du vrai site, dont /app/feed/.
-// Ce menu différait sur les pages Next.js (Modèles/Feed/Blog/Guides/Tarifs/FAQ) :
-// signalé comme incohérent (#109), corrigé ici pour matcher le menu réel partout.
-const TOPNAV = [
-  { href: "/", label: "Découvrir", icon: "grid" },
-  { href: "/live/", label: "Live Streaming", icon: "flame" },
-  { href: "/", label: "Mes modèles", icon: "heart" },
-  { href: "/tarifs/", label: "Pass", icon: "star" },
-  { href: "/blog/", label: "Blog", icon: "book" },
-  { href: "/app/studio/", label: "Studio", icon: "sparkle" },
-];
-
+// Menu du haut retiré (10/11/2026, décision Seb) : seul le menu de gauche reste.
+// On garde uniquement le déclencheur mobile (le tiroir .side est hors-écran sous
+// 1000px et n'a plus que ce bouton pour s'ouvrir) — plus de logo/topnav/connexion
+// dupliqués ici, tout ça vit déjà dans la sidebar (side-logo, side-bot).
 export function SiteHeader() {
   return (
-    <header className="appbar">
-      <div className="appbar-in">
-        <label htmlFor="side-toggle" className="side-burger" aria-label="Ouvrir le menu">
-          <Icon name="menu" />
-        </label>
-        <a href="/" className="logo" aria-label={SITE_NAME}>
-          {SITE_NAME}
-        </a>
-        <nav className="topnav" aria-label="Navigation principale">
-          {TOPNAV.map((n) => (
-            <a key={n.label} href={n.href}>
-              <Icon name={n.icon} />
-              {n.label}
-            </a>
-          ))}
-        </nav>
-        <div className="ab-auth">
-          <a href="/compte/">Connexion</a>
-          <a href="/compte/" className="pri">
-            Inscription
-          </a>
-        </div>
-      </div>
-    </header>
+    <label
+      htmlFor="side-toggle"
+      className="mobile-burger"
+      aria-label="Ouvrir le menu"
+    >
+      <Icon name="menu" />
+    </label>
   );
 }
 

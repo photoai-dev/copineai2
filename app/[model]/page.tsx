@@ -182,13 +182,20 @@ export default async function ModelPage({
             <ul className="mp-grid">
               {images.map((p) => (
                 <li key={p.id}>
-                  <Image
-                    src={feedMediaUrl(p.path)}
-                    alt={p.caption || `Photo de ${m.name}`}
-                    width={300}
-                    height={400}
-                    unoptimized
-                  />
+                  <a
+                    href={feedMediaUrl(p.path)}
+                    target="_blank"
+                    rel="noopener"
+                    aria-label={p.caption || `Photo de ${m.name}, ouvrir en grand`}
+                  >
+                    <Image
+                      src={feedMediaUrl(p.path)}
+                      alt={p.caption || `Photo de ${m.name}`}
+                      width={300}
+                      height={400}
+                      unoptimized
+                    />
+                  </a>
                 </li>
               ))}
             </ul>
@@ -202,18 +209,27 @@ export default async function ModelPage({
             <ul className="mp-grid">
               {videos.map((p) => (
                 <li key={p.id} className="mp-vidtile">
-                  {p.thumb_path ? (
-                    <Image
-                      src={feedMediaUrl(p.thumb_path)}
-                      alt={p.caption || `Vidéo de ${m.name}`}
-                      width={300}
-                      height={400}
-                      unoptimized
-                    />
-                  ) : null}
-                  <span className="mp-vid" aria-hidden="true">
-                    ▶
-                  </span>
+                  <a
+                    href={feedMediaUrl(p.path)}
+                    target="_blank"
+                    rel="noopener"
+                    aria-label={p.caption || `Vidéo de ${m.name}, lire`}
+                  >
+                    {p.thumb_path ? (
+                      <Image
+                        src={feedMediaUrl(p.thumb_path)}
+                        alt={p.caption || `Vidéo de ${m.name}`}
+                        width={300}
+                        height={400}
+                        unoptimized
+                      />
+                    ) : (
+                      <span className="mp-vid-fallback" aria-hidden="true" />
+                    )}
+                    <span className="mp-vid" aria-hidden="true">
+                      ▶
+                    </span>
+                  </a>
                 </li>
               ))}
             </ul>
