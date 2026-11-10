@@ -9,7 +9,7 @@ import {
   modelCtaHref,
 } from "@/lib/models";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
-import { getModelMedia, feedMediaUrl } from "@/lib/feed";
+import { getModelMedia, getModelReels, feedMediaUrl } from "@/lib/feed";
 
 // Pas de `revalidate` ici : les données modèles viennent d'un import JSON statique
 // (snapshot pris sur l'ancien site), donc la page est déjà entièrement statique au build —
@@ -79,6 +79,7 @@ export default async function ModelPage({
   const media = await getModelMedia(m.id, 60);
   const images = media.filter((p) => p.kind === "photo" && p.path);
   const videos = media.filter((p) => p.kind === "video" && p.path);
+  const reels = await getModelReels(m.id, 12);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -167,12 +168,14 @@ export default async function ModelPage({
       <div className="mp-tabset">
         <input type="radio" name="mp-tab" id="mp-t-photos" className="mp-tab-input" defaultChecked />
         <input type="radio" name="mp-tab" id="mp-t-videos" className="mp-tab-input" />
+        <input type="radio" name="mp-tab" id="mp-t-reels" className="mp-tab-input" />
         <input type="radio" name="mp-tab" id="mp-t-chat" className="mp-tab-input" />
         <input type="radio" name="mp-tab" id="mp-t-priv" className="mp-tab-input" />
 
         <div className="mp-tabbar">
           <label htmlFor="mp-t-photos">Photos</label>
           <label htmlFor="mp-t-videos">Vidéos</label>
+          <label htmlFor="mp-t-reels">Reels</label>
           <label htmlFor="mp-t-chat">Discuter</label>
           <label htmlFor="mp-t-priv">Privé</label>
         </div>
@@ -235,6 +238,48 @@ export default async function ModelPage({
             </ul>
           ) : (
             <p className="mp-empty">Pas encore de vidéo publique.</p>
+          )}
+        </div>
+
+        <div className="mp-panel" data-panel="reels">
+          {reels.length ? (
+            <ul className="mp-grid">
+              {reels.map((p) => (
+                <li key={p.id} className={p.kind === "video" ? "mp-vidtile" : undefined}>
+                  <a
+                    href={modelCtaHref(m)}
+                    aria-label={`Reel de ${m.name}${p.caption ? " — " + p.caption : ""}`}
+                  >
+                    {p.kind === "image" ? (
+                      <Image
+                        src={feedMediaUrl(p.media)}
+                        alt={p.caption || `Reel de ${m.name}`}
+                        width={300}
+                        height={400}
+                        unoptimized
+                      />
+                    ) : p.poster ? (
+                      <Image
+                        src={feedMediaUrl(p.poster)}
+                        alt={p.caption || `Reel de ${m.name}`}
+                        width={300}
+                        height={400}
+                        unoptimized
+                      />
+                    ) : (
+                      <span className="mp-vid-fallback" aria-hidden="true" />
+                    )}
+                    {p.kind === "video" ? (
+                      <span className="mp-vid" aria-hidden="true">
+                        ▶
+                      </span>
+                    ) : null}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mp-empty">Pas encore de reel.</p>
           )}
         </div>
 

@@ -120,6 +120,34 @@ export async function getModelMedia(modelId: string, limit = 60): Promise<MediaI
   }
 }
 
+// Reels d'un modèle (10/11/2026) : derniers posts publics (image + vidéo, contrairement à
+// getPublicFeed qui exclut les vidéos faute de poster) pour le nouvel onglet "Reels" de la
+// fiche modèle. La lecture avec fond sonore reste côté love20 (seule à l'avoir aujourd'hui) —
+// ici on ne fait que les vignettes ; le clic renvoie vers modelCtaHref, pas une URL devinée.
+export async function getModelReels(modelId: string, limit = 12): Promise<FeedPost[]> {
+  "use cache";
+  cacheLife("hours");
+
+  const url =
+    `${SUPABASE_URL}/rest/v1/posts` +
+    `?select=id,model_id,kind,caption,media,poster,published_at` +
+    `&status=eq.published&access=eq.pub&model_id=eq.${encodeURIComponent(modelId)}` +
+    `&order=published_at.desc&limit=${limit}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    if (!res.ok) return [];
+    return (await res.json()) as FeedPost[];
+  } catch {
+    return [];
+  }
+}
+
 export async function getPublicFeed(limit = 60): Promise<FeedPost[]> {
   "use cache";
   cacheLife("hours");

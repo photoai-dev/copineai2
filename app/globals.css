@@ -1369,6 +1369,7 @@ svg.i {
 }
 #mp-t-photos:checked ~ .mp-tabbar label[for="mp-t-photos"],
 #mp-t-videos:checked ~ .mp-tabbar label[for="mp-t-videos"],
+#mp-t-reels:checked ~ .mp-tabbar label[for="mp-t-reels"],
 #mp-t-chat:checked ~ .mp-tabbar label[for="mp-t-chat"],
 #mp-t-priv:checked ~ .mp-tabbar label[for="mp-t-priv"] {
   color: var(--ink);
@@ -1376,6 +1377,7 @@ svg.i {
 }
 #mp-t-photos:checked ~ [data-panel="photos"],
 #mp-t-videos:checked ~ [data-panel="videos"],
+#mp-t-reels:checked ~ [data-panel="reels"],
 #mp-t-chat:checked ~ [data-panel="chat"],
 #mp-t-priv:checked ~ [data-panel="priv"] {
   display: block;
