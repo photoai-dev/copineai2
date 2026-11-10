@@ -1433,9 +1433,8 @@ svg.i {
   padding: 10px 14px;
   margin: 0 0 12px;
 }
-.mp-grid-locked img {
-  filter: blur(11px) saturate(1.05);
-  transform: scale(1.12);
+.mp-grid-locked li.mp-locktile {
+  position: relative;
 }
 .mp-grid-locked .mp-lock {
   position: absolute;

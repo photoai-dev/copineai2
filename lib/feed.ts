@@ -89,6 +89,59 @@ export type MediaItem = {
   created_at: string;
 };
 
+export type AuthMediaItem = {
+  id: string;
+  kind: "photo" | "video";
+  visibility: "public" | "private" | "blocked";
+  title: string | null;
+  caption: string | null;
+  created_at: string;
+  path: string | null; // non-null seulement si l'appelant (anon ou connecté) y a droit
+  thumb_path: string | null; // aperçu toujours public/sûr, même pour du contenu privé
+  mime: string | null;
+};
+
+// Fiche modèle consciente de la session (10/11/2026) : avant, cette page lisait TOUJOURS la
+// clé anon, donc ne reconnaissait jamais un abonné connecté (contenu privé jamais débloqué
+// ici, contrairement à /app/vente/ sur love20 qui lit la vraie session — d'où "2 comptes").
+// model_media_feed (RPC déjà existante, utilisée par m_content.js admin et index.html coté
+// love20) vérifie elle-même auth.uid() + l'abonnement : appelée avec le client serveur de
+// l'abonné (supabaseServer(), cookies de session), elle renvoie un vrai path pour le contenu
+// public ET pour le privé/bloqué auquel il a droit ; null sinon. Anonyme ou non-abonné : même
+// résultat qu'avant (path=null sur tout ce qui n'est pas public), sans code séparé.
+export async function getAuthModelMedia(
+  supabase: import("@supabase/supabase-js").SupabaseClient,
+  modelId: string,
+  limit = 60
+): Promise<AuthMediaItem[]> {
+  const { data, error } = await supabase.rpc("model_media_feed", {
+    p_model: modelId,
+    p_limit: limit,
+    p_offset: 0,
+  });
+  if (error || !data) return [];
+  return data as AuthMediaItem[];
+}
+
+// Les paths "entitled" renvoyés par model_media_feed pour du contenu privé/bloqué vivent dans
+// le bucket media-private (jamais public) : il faut une URL signée, comme déjà fait côté admin
+// (m_content.js) et côté chat/VIP de love20 (index.html, createSignedUrls). Le contenu public
+// n'a pas besoin de ça (feedMediaUrl suffit, bucket media-public).
+export async function signPrivateMedia(
+  supabase: import("@supabase/supabase-js").SupabaseClient,
+  paths: string[]
+): Promise<Record<string, string>> {
+  if (!paths.length) return {};
+  const { data } = await supabase.storage
+    .from("media-private")
+    .createSignedUrls(paths, 10800);
+  const map: Record<string, string> = {};
+  (data ?? []).forEach((o) => {
+    if (o.signedUrl && o.path) map[o.path] = o.signedUrl;
+  });
+  return map;
+}
+
 // Photothèque (#125, 22/10/2026) : vraie source de la grille "Public" d'une fiche modèle —
 // table public.media (gérée depuis l'admin "Photothèque"), distincte de public.posts (le
 // fil "feed" séparé). RLS avait déjà la policy media_read_public mais aucun GRANT pour anon

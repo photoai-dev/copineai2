@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import {
@@ -7,9 +8,17 @@ import {
   modelAvatar,
   modelCoverPhoto,
   modelCtaHref,
+  type Model,
 } from "@/lib/models";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
-import { getModelMedia, getModelReels, feedMediaUrl } from "@/lib/feed";
+import {
+  getModelMedia,
+  getModelReels,
+  getAuthModelMedia,
+  signPrivateMedia,
+  feedMediaUrl,
+} from "@/lib/feed";
+import { supabaseServer } from "@/lib/supabase/server";
 
 // Pas de `revalidate` ici : les données modèles viennent d'un import JSON statique
 // (snapshot pris sur l'ancien site), donc la page est déjà entièrement statique au build —
@@ -297,38 +306,93 @@ export default async function ModelPage({
         </div>
 
         <div className="mp-panel" data-panel="priv">
-          {images.length ? (
-            <>
-              <p className="mp-priv-note">
-                Photos et vidéos privées — réservées aux abonnés
-              </p>
-              <ul className="mp-grid mp-grid-locked">
-                {images.slice(0, 9).map((p) => (
-                  <li key={p.id}>
-                    <Image
-                      src={feedMediaUrl(p.path)}
-                      alt=""
-                      width={300}
-                      height={400}
-                      unoptimized
-                    />
-                    <span className="mp-lock" aria-hidden="true">
-                      🔒
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <p className="mp-empty">Pas encore de contenu privé.</p>
-          )}
-          <div className="mp-locked mp-locked-cta">
-            <a href="/tarifs/" className="mp-sub-btn">
-              S&apos;abonner pour accéder au contenu privé
-            </a>
-          </div>
+          <Suspense fallback={<p className="mp-empty">Chargement du contenu privé…</p>}>
+            <PrivateTab m={m} />
+          </Suspense>
         </div>
       </div>
     </main>
+  );
+}
+
+// Un seul compte, public ou connecté (10/11/2026) : avant, l'onglet Privé montrait
+// toujours des photos PUBLIQUES floutées en CSS comme teaser générique — jamais le
+// vrai contenu privé, même pour un abonné connecté (d'où "pas reconnu comme connecté" :
+// le vrai déblocage n'existait que côté love20/app/vente/). Ici on lit la vraie
+// session (cookies, supabaseServer) et on appelle model_media_feed, qui vérifie
+// elle-même auth.uid() + le palier d'abonnement (media_entitled) et ne renvoie un
+// path que pour ce à quoi l'appelant a droit. Anonyme ou non-abonné : aucun path
+// débloqué, donc même résultat "verrouillé" qu'avant, mais avec le vrai visuel
+// (thumb_path, déjà flouté par l'admin à l'upload) au lieu d'un décor emprunté aux
+// photos publiques. La lecture de session est un accès "au moment de la requête"
+// (cookies()) : sous Cache Components elle doit vivre dans un composant à part,
+// derrière un <Suspense>, pour que le reste de la page (bannière, bio, Photos,
+// Vidéos, Reels, Discuter — tout ce qui ne dépend pas du visiteur) reste prérendu
+// et instantané ; seul cet onglet attend la vraie requête.
+async function PrivateTab({ m }: { m: Model }) {
+  const supabase = await supabaseServer();
+  const authMedia = await getAuthModelMedia(supabase, m.id, 60);
+  const privateMedia = authMedia.filter((p) => p.visibility !== "public");
+  const unlockedPaths = privateMedia
+    .filter((p) => p.path)
+    .map((p) => p.path as string);
+  const signedUrls = await signPrivateMedia(supabase, unlockedPaths);
+
+  return (
+    <>
+      {privateMedia.length ? (
+        <>
+          <p className="mp-priv-note">
+            Photos et vidéos privées — réservées aux abonnés
+          </p>
+          <ul className="mp-grid mp-grid-locked">
+            {privateMedia.slice(0, 12).map((p) => {
+              const unlockedUrl = p.path ? signedUrls[p.path] : null;
+              if (unlockedUrl) {
+                // Abonné connecté et entitled sur ce média : vrai fichier, déverrouillé.
+                return (
+                  <li key={p.id} className={p.kind === "video" ? "mp-vidtile" : undefined}>
+                    <a href={unlockedUrl} target="_blank" rel="noopener" aria-label={p.caption || `Contenu privé de ${m.name}`}>
+                      {p.kind === "video" ? (
+                        p.thumb_path ? (
+                          <Image src={feedMediaUrl(p.thumb_path)} alt={p.caption || ""} width={300} height={400} unoptimized />
+                        ) : (
+                          <span className="mp-vid-fallback" aria-hidden="true" />
+                        )
+                      ) : (
+                        <Image src={unlockedUrl} alt={p.caption || ""} width={300} height={400} unoptimized />
+                      )}
+                      {p.kind === "video" ? <span className="mp-vid" aria-hidden="true">▶</span> : null}
+                    </a>
+                  </li>
+                );
+              }
+              // Anonyme ou non-abonné : aperçu sûr déjà flouté côté admin à l'upload
+              // (thumb_path, bucket public) — jamais le fichier réel, jamais refloutée
+              // en CSS ici.
+              return (
+                <li key={p.id} className="mp-locktile">
+                  {p.thumb_path ? (
+                    <Image src={feedMediaUrl(p.thumb_path)} alt="" width={300} height={400} unoptimized />
+                  ) : (
+                    <span className="mp-vid-fallback" aria-hidden="true" />
+                  )}
+                  <span className="mp-lock" aria-hidden="true">🔒</span>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      ) : (
+        <p className="mp-empty">Pas encore de contenu privé.</p>
+      )}
+      {unlockedPaths.length === 0 ? (
+        <div className="mp-locked mp-locked-cta">
+          <a href="/tarifs/" className="mp-sub-btn">
+            S&apos;abonner pour accéder au contenu privé
+          </a>
+        </div>
+      ) : null}
+    </>
   );
 }
