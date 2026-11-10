@@ -135,11 +135,15 @@ export default async function ModelPage({
       <div className="mp-stats">
         <div>
           <b>{images.length}</b>
-          <span>publications</span>
+          <span>photos</span>
         </div>
         <div>
           <b>{videos.length}</b>
           <span>vidéos</span>
+        </div>
+        <div>
+          <b>{m.job}</b>
+          <span>{m.city}</span>
         </div>
       </div>
 
@@ -153,28 +157,28 @@ export default async function ModelPage({
         </ul>
       ) : null}
 
-      <div className="mp-cta">
-        <a href="/tarifs/" className="mp-sub-btn">
-          S&apos;abonner
-        </a>
-        <a href={modelCtaHref(m)} className="mp-msg-btn">
-          Discuter avec {m.name}
-        </a>
-      </div>
-
+      {/* Un seul gabarit de profil (10/11/2026) : avant, cette page (indexable, SEO) montrait
+          Public/Privé/Bloqué en teaser, et "Discuter" quittait visuellement le site vers le
+          style love20 (/app/vente/) — perçu comme 2 profils différents. Ici "Discuter" est un
+          onglet au même rang que Photos/Vidéos/Privé : son contenu reste sur cette page, seul
+          le clic sur le bouton mène vers le chat réel (toujours love20, même domaine). Même
+          structure sur tous les modèles ; les options par modèle (ex: Audios) s'ajouteront
+          plus tard sans changer ce gabarit. */}
       <div className="mp-tabset">
-        <input type="radio" name="mp-tab" id="mp-t-pub" className="mp-tab-input" defaultChecked />
+        <input type="radio" name="mp-tab" id="mp-t-photos" className="mp-tab-input" defaultChecked />
+        <input type="radio" name="mp-tab" id="mp-t-videos" className="mp-tab-input" />
+        <input type="radio" name="mp-tab" id="mp-t-chat" className="mp-tab-input" />
         <input type="radio" name="mp-tab" id="mp-t-priv" className="mp-tab-input" />
-        <input type="radio" name="mp-tab" id="mp-t-bloq" className="mp-tab-input" />
 
         <div className="mp-tabbar">
-          <label htmlFor="mp-t-pub">Public</label>
+          <label htmlFor="mp-t-photos">Photos</label>
+          <label htmlFor="mp-t-videos">Vidéos</label>
+          <label htmlFor="mp-t-chat">Discuter</label>
           <label htmlFor="mp-t-priv">Privé</label>
-          <label htmlFor="mp-t-bloq">Bloqué</label>
         </div>
 
-        <div className="mp-panel" data-panel="pub">
-          {images.length || videos.length ? (
+        <div className="mp-panel" data-panel="photos">
+          {images.length ? (
             <ul className="mp-grid">
               {images.map((p) => (
                 <li key={p.id}>
@@ -187,8 +191,17 @@ export default async function ModelPage({
                   />
                 </li>
               ))}
+            </ul>
+          ) : (
+            <p className="mp-empty">Pas encore de photo publique.</p>
+          )}
+        </div>
+
+        <div className="mp-panel" data-panel="videos">
+          {videos.length ? (
+            <ul className="mp-grid">
               {videos.map((p) => (
-                <li key={p.id}>
+                <li key={p.id} className="mp-vidtile">
                   {p.thumb_path ? (
                     <Image
                       src={feedMediaUrl(p.thumb_path)}
@@ -205,32 +218,52 @@ export default async function ModelPage({
               ))}
             </ul>
           ) : (
-            <p className="mp-empty">Pas encore de publication publique.</p>
+            <p className="mp-empty">Pas encore de vidéo publique.</p>
           )}
         </div>
 
-        <div className="mp-panel" data-panel="priv">
+        <div className="mp-panel" data-panel="chat">
           <div className="mp-locked">
-            <h3>Contenu réservé aux abonnés</h3>
+            <h3>Discute avec {m.name}</h3>
             <p>
-              {m.name} partage des photos et vidéos privées avec ses abonnés. Abonne-toi pour y
-              accéder.
+              Raconte-lui ta journée, pose-lui une question — elle te répond, avec sa vraie
+              personnalité.
             </p>
-            <a href="/tarifs/" className="mp-sub-btn">
-              S&apos;abonner
+            <a href={modelCtaHref(m)} className="mp-msg-btn">
+              Ouvrir la discussion
             </a>
           </div>
         </div>
 
-        <div className="mp-panel" data-panel="bloq">
-          <div className="mp-locked">
-            <h3>Contenu à débloquer</h3>
-            <p>
-              Certaines publications de {m.name} se débloquent individuellement. Discute avec elle
-              pour les découvrir.
-            </p>
-            <a href={modelCtaHref(m)} className="mp-msg-btn">
-              Discuter avec {m.name}
+        <div className="mp-panel" data-panel="priv">
+          {images.length ? (
+            <>
+              <p className="mp-priv-note">
+                Photos et vidéos privées — réservées aux abonnés
+              </p>
+              <ul className="mp-grid mp-grid-locked">
+                {images.slice(0, 9).map((p) => (
+                  <li key={p.id}>
+                    <Image
+                      src={feedMediaUrl(p.path)}
+                      alt=""
+                      width={300}
+                      height={400}
+                      unoptimized
+                    />
+                    <span className="mp-lock" aria-hidden="true">
+                      🔒
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className="mp-empty">Pas encore de contenu privé.</p>
+          )}
+          <div className="mp-locked mp-locked-cta">
+            <a href="/tarifs/" className="mp-sub-btn">
+              S&apos;abonner pour accéder au contenu privé
             </a>
           </div>
         </div>
