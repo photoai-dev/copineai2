@@ -1,4 +1,5 @@
 import { cacheLife } from "next/cache";
+export { feedMediaUrl } from "@/lib/media-url";
 
 // Supabase : clé publique "anon" (conçue pour être exposée côté client, ce n'est pas un
 // secret) + une policy RLS dédiée, restreinte aux posts publics, ajoutée spécifiquement
@@ -23,13 +24,6 @@ export type MemberFeedPost = FeedPost & {
   access: "pub" | "priv" | "ppv";
   price_cents: number | null;
 };
-
-const MEDIA_BASE =
-  "https://allbwtoexfxupksbvfnh.supabase.co/storage/v1/object/public/media-public/";
-
-export function feedMediaUrl(path: string): string {
-  return `${MEDIA_BASE}${path}`;
-}
 
 // Feed privé (membres connectés, compte actif) : pub + priv + ppv, via la fonction Postgres
 // member_feed_v2 (SECURITY DEFINER) — la table posts n'est pas lisible directement par un

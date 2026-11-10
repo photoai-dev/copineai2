@@ -19,6 +19,7 @@ import {
   feedMediaUrl,
 } from "@/lib/feed";
 import { supabaseServer } from "@/lib/supabase/server";
+import { PhotoGallery, VideoGallery } from "@/components/MediaGallery";
 
 // Pas de `revalidate` ici : les données modèles viennent d'un import JSON statique
 // (snapshot pris sur l'ancien site), donc la page est déjà entièrement statique au build —
@@ -190,64 +191,11 @@ export default async function ModelPage({
         </div>
 
         <div className="mp-panel" data-panel="photos">
-          {images.length ? (
-            <ul className="mp-grid">
-              {images.map((p) => (
-                <li key={p.id}>
-                  <a
-                    href={feedMediaUrl(p.path)}
-                    target="_blank"
-                    rel="noopener"
-                    aria-label={p.caption || `Photo de ${m.name}, ouvrir en grand`}
-                  >
-                    <Image
-                      src={feedMediaUrl(p.path)}
-                      alt={p.caption || `Photo de ${m.name}`}
-                      width={300}
-                      height={400}
-                      unoptimized
-                    />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mp-empty">Pas encore de photo publique.</p>
-          )}
+          <PhotoGallery images={images} modelName={m.name} />
         </div>
 
         <div className="mp-panel" data-panel="videos">
-          {videos.length ? (
-            <ul className="mp-grid">
-              {videos.map((p) => (
-                <li key={p.id} className="mp-vidtile">
-                  <a
-                    href={feedMediaUrl(p.path)}
-                    target="_blank"
-                    rel="noopener"
-                    aria-label={p.caption || `Vidéo de ${m.name}, lire`}
-                  >
-                    {p.thumb_path ? (
-                      <Image
-                        src={feedMediaUrl(p.thumb_path)}
-                        alt={p.caption || `Vidéo de ${m.name}`}
-                        width={300}
-                        height={400}
-                        unoptimized
-                      />
-                    ) : (
-                      <span className="mp-vid-fallback" aria-hidden="true" />
-                    )}
-                    <span className="mp-vid" aria-hidden="true">
-                      ▶
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="mp-empty">Pas encore de vidéo publique.</p>
-          )}
+          <VideoGallery videos={videos} modelName={m.name} />
         </div>
 
         <div className="mp-panel" data-panel="reels">

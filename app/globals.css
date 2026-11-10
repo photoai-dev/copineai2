@@ -1242,6 +1242,10 @@ svg.i {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Cadrage visage (10/11/2026) : un centrage 50%/50% coupe souvent le haut du
+     visage sur un portrait. Même biais que love20 pour ses propres vignettes
+     et stories (app.css .tile/.media/.st-c, object-position: 50% 20-25%). */
+  object-position: 50% 18%;
 }
 .mp-head {
   display: flex;
@@ -1393,7 +1397,8 @@ svg.i {
   background: var(--surface2);
   position: relative;
 }
-.mp-grid a {
+.mp-grid a,
+.mp-grid-btn {
   display: block;
   width: 100%;
   height: 100%;
@@ -1403,6 +1408,96 @@ svg.i {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+/* Tuile cliquable en <button> (10/11/2026, popup Photos/Vidéos) : même rendu
+   qu'un <a>, sans les styles de bouton natifs. */
+.mp-grid-btn {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: none;
+  text-align: inherit;
+  font: inherit;
+  color: inherit;
+  position: relative;
+}
+
+/* ---- popup Photos/Vidéos (10/11/2026) : navigation plein écran, 5 photos
+   publiques en grand puis incitation à s'inscrire ; vidéos publiques toujours
+   réservées aux connectés (vignette visible pour tous, lecture non). ---- */
+.mp-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #000000e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(16px, env(safe-area-inset-left, 0px));
+}
+.mp-lb-stage {
+  max-width: min(92vw, 560px);
+  max-height: 86vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mp-lb-img {
+  width: 100%;
+  height: auto;
+  max-height: 86vh;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.mp-lb-video {
+  width: 100%;
+  max-height: 86vh;
+  border-radius: 10px;
+  background: #000;
+}
+.mp-lb-close,
+.mp-lb-nav {
+  position: fixed;
+  border: 0;
+  background: #ffffff1a;
+  color: #fff;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 201;
+}
+.mp-lb-close {
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px));
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+}
+.mp-lb-nav {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  font-size: 26px;
+}
+.mp-lb-prev {
+  left: max(10px, env(safe-area-inset-left, 0px));
+}
+.mp-lb-next {
+  right: max(10px, env(safe-area-inset-right, 0px));
+}
+.mp-lb-gate {
+  text-align: center;
+  background: #fff;
+  border-radius: 18px;
+  padding: 36px 24px;
+  max-width: 420px;
+}
+.mp-lb-gate p {
+  color: var(--muted);
+  margin: 0 0 16px;
 }
 .mp-vid-fallback {
   display: block;
